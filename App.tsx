@@ -127,7 +127,7 @@ const App: React.FC = () => {
             <ChevronLeft className="w-5 h-5" />
             <span>กลับสู่ระบบ</span>
           </button>
-          <div className="text-sm font-medium text-slate-400">ตัวอย่างเอกสาร (1 หน้า A4)</div>
+          <div className="text-sm font-medium text-slate-400">แบบฟอร์ม (1 หน้า A4)</div>
           <button 
             onClick={() => window.print()}
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-xl transition-all font-black shadow-lg shadow-blue-900/20"
@@ -137,28 +137,26 @@ const App: React.FC = () => {
           </button>
         </div>
 
-        <div className="max-w-[210mm] min-h-[297mm] mx-auto bg-white shadow-2xl p-[15mm_20mm] formal-document relative overflow-hidden print:shadow-none">
-          <div className="text-center mb-8 border-b-2 border-black pb-6 relative">
-            <div className="absolute top-0 right-0 text-[9px] text-slate-400 font-bold uppercase no-print">DocID: ATH-{Date.now().toString().slice(-6)}</div>
-            <img src={LOGO_URL} alt="Logo" className="h-16 w-auto mx-auto mb-3" />
-            <h1 className="text-xl font-black text-black">บัญชีรายชื่อนักกีฬาและผู้เข้าร่วมกิจกรรม</h1>
-            <p className="text-base font-bold text-slate-700 underline decoration-slate-300 underline-offset-4">
-              ประจำปีการศึกษา {new Date().getFullYear() + 543}
-            </p>
+        <div className="max-w-[210mm] min-h-[296.5mm] mx-auto bg-white shadow-2xl p-[15mm_20mm] formal-document relative overflow-hidden print:shadow-none print:m-0">
+          <div className="text-center mb-6 border-b-2 border-black pb-4 relative">
+            <div className="absolute top-0 right-0 text-[8px] text-slate-400 font-bold no-print">ATH-v2.0</div>
+            <img src={LOGO_URL} alt="Logo" className="h-14 w-auto mx-auto mb-2" />
+            <h1 className="text-lg font-black text-black leading-tight">บัญชีรายชื่อนักกีฬาและผู้เข้าร่วมกิจกรรม</h1>
+            <p className="text-sm font-bold text-slate-700">ประจำปีการศึกษา {new Date().getFullYear() + 543}</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 mb-6 text-[13px]">
+          <div className="grid grid-cols-2 gap-4 mb-4 text-[12px]">
             <div className="space-y-0.5">
-              <p><span className="font-bold">หน่วยงาน:</span> โรงเรียนและสมาคมพันธมิตรกีฬา</p>
-              <p><span className="font-bold">ประเภท:</span> ทะเบียนประวัตินักกีฬาดีเด่น</p>
+              <p><span className="font-bold">หน่วยงาน:</span> โรงเรียนและสถาบันเครือข่ายกีฬา</p>
+              <p><span className="font-bold">รายการ:</span> ทะเบียนคุมข้อมูลนักกีฬา</p>
             </div>
             <div className="text-right space-y-0.5">
-              <p><span className="font-bold">วันที่พิมพ์:</span> {new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-              <p><span className="font-bold">รวมจำนวน:</span> {athletes.length} รายชื่อ</p>
+              <p><span className="font-bold">วันที่ออก:</span> {new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+              <p><span className="font-bold">จำนวน:</span> {athletes.length} รายชื่อ</p>
             </div>
           </div>
 
-          <div className="min-h-[160mm]">
+          <div className="overflow-hidden">
             <AthleteTable 
               athletes={athletes} 
               onDelete={() => {}} 
@@ -168,28 +166,28 @@ const App: React.FC = () => {
             />
           </div>
 
-          {/* Signature Section - Positioned at bottom for formal look */}
-          <div className="mt-10 grid grid-cols-3 gap-6 signature-section text-center">
+          {/* Fixed Bottom Signature Section */}
+          <div className="signature-section grid grid-cols-3 gap-6 text-center">
             <div className="flex flex-col items-center">
-              <div className="h-12 w-full border-b border-dotted border-black mb-2"></div>
-              <p className="font-bold text-[13px]">(....................................................)</p>
-              <p className="text-[11px] text-slate-600 mt-1">เจ้าหน้าที่ผู้รวบรวม</p>
+              <div className="h-10 w-full border-b border-dotted border-black mb-1"></div>
+              <p className="font-bold text-[12px]">(....................................................)</p>
+              <p className="text-[10px] text-slate-600 mt-1">ผู้จัดทำข้อมูล</p>
             </div>
             <div className="flex flex-col items-center">
-              <div className="h-12 w-full border-b border-dotted border-black mb-2"></div>
-              <p className="font-bold text-[13px]">(....................................................)</p>
-              <p className="text-[11px] text-slate-600 mt-1">อาจารย์ที่ปรึกษา</p>
+              <div className="h-10 w-full border-b border-dotted border-black mb-1"></div>
+              <p className="font-bold text-[12px]">(....................................................)</p>
+              <p className="text-[10px] text-slate-600 mt-1">อาจารย์ผู้ควบคุม</p>
             </div>
             <div className="flex flex-col items-center">
-              <div className="h-12 w-full border-b border-dotted border-black mb-2"></div>
-              <p className="font-bold text-[13px]">(....................................................)</p>
-              <p className="text-[11px] text-slate-600 mt-1">ผู้อำนวยการ/หัวหน้างาน</p>
+              <div className="h-10 w-full border-b border-dotted border-black mb-1"></div>
+              <p className="font-bold text-[12px]">(....................................................)</p>
+              <p className="text-[10px] text-slate-600 mt-1">ผู้อนุมัติรายการ</p>
             </div>
           </div>
           
-          <div className="absolute bottom-6 left-20 right-20 flex justify-between text-[9px] text-slate-400 font-medium">
-             <span>* เอกสารนี้สร้างโดยระบบอัตโนมัติ</span>
-             <span>หน้าที่ 1 / 1</span>
+          <div className="absolute bottom-4 left-20 right-20 flex justify-between text-[8px] text-slate-400 font-medium">
+             <span>* ข้อมูลล่าสุดจากระบบทะเบียนอิเล็กทรอนิกส์</span>
+             <span>หน้า 1 / 1</span>
           </div>
         </div>
       </div>

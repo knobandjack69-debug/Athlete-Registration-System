@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        * { box-sizing: border-box; }
         body { 
             font-family: 'Sarabun', sans-serif; 
             background-color: #f8fafc; 
@@ -24,28 +25,32 @@
         @media print {
             @page {
                 size: A4 portrait;
-                margin: 0; /* กำจัดขอบเพื่อให้ URL/วันที่ ไม่แสดง */
+                margin: 0 !important; /* กำจัดขอบ Browser ทั้งหมด */
             }
             
+            html, body {
+                height: 100%;
+                margin: 0 !important;
+                padding: 0 !important;
+                background-color: white !important;
+            }
+
             .no-print { 
                 display: none !important; 
-            }
-            
-            body { 
-                background-color: white !important; 
-                padding: 0 !important;
-                margin: 0 !important;
             }
             
             .formal-document {
                 box-shadow: none !important;
                 border: none !important;
-                padding: 15mm 20mm !important; /* กำหนดขอบเขตเอกสารมาตรฐาน */
-                margin: 0 !important;
+                /* ลดความสูงลงเล็กน้อยจาก 297 เป็น 296.5 เพื่อไม่ให้เกิดหน้าว่าง */
                 width: 210mm !important;
-                height: 297mm !important;
+                height: 296.5mm !important; 
+                padding: 15mm 20mm !important;
+                margin: 0 auto !important;
                 overflow: hidden !important;
                 position: relative;
+                page-break-after: avoid;
+                break-after: avoid;
             }
 
             table { 
@@ -54,32 +59,26 @@
             }
             
             th, td { 
-                border: 0.5pt solid #000 !important; /* เส้นดำสนิทแบบทางการ */
-                padding: 6px 8px !important; 
+                border: 0.5pt solid #000 !important;
+                padding: 5px 8px !important; 
                 font-size: 13px !important;
                 color: black !important;
+                line-height: 1.2 !important;
             }
 
             th {
                 background-color: #f3f4f6 !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
-                font-weight: bold !important;
             }
 
             .col-action {
                 display: none !important;
             }
 
-            .signature-box {
-                page-break-inside: avoid;
-                break-inside: avoid;
-            }
-            
-            /* ช่วยจัดตำแหน่งช่องลงนามให้ชิดล่างกระดาษพอดี */
             .signature-section {
                 position: absolute;
-                bottom: 25mm;
+                bottom: 20mm; /* ปรับขึ้นมาอีกนิด */
                 left: 20mm;
                 right: 20mm;
             }
