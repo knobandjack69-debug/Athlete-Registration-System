@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Trash2, Edit2, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { Athlete } from '../types';
@@ -31,7 +32,7 @@ const AthleteTable: React.FC<Props> = ({ athletes, onDelete, onEdit, isDeletingI
             <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest print:text-black print:font-bold">ชื่อ - นามสกุล</th>
             <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest w-32 print:text-black print:font-bold">ชั้น / เลขที่</th>
             {!hideActions && (
-              <th className="no-print px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center w-32">จัดการ</th>
+              <th className="no-print px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center w-32 col-action">จัดการ</th>
             )}
           </tr>
         </thead>
@@ -42,11 +43,11 @@ const AthleteTable: React.FC<Props> = ({ athletes, onDelete, onEdit, isDeletingI
                 {index + 1}
               </td>
               <td className="px-6 py-4">
-                <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white ring-2 ring-slate-100 mx-auto bg-slate-50 shadow-sm transition-transform group-hover:scale-110 print:ring-0 print:border-slate-300">
+                <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white ring-2 ring-slate-100 mx-auto bg-slate-50 shadow-sm transition-transform group-hover:scale-110 print:ring-0 print:border-none">
                   <img 
                     src={athlete.photoUrl || 'https://via.placeholder.com/100?text=Athlete'} 
                     alt="Athlete" 
-                    className="w-full h-full object-cover athlete-photo-circle"
+                    className="w-full h-full object-cover athlete-photo-circle athlete-photo-print"
                     loading="lazy"
                   />
                 </div>
@@ -66,7 +67,7 @@ const AthleteTable: React.FC<Props> = ({ athletes, onDelete, onEdit, isDeletingI
                 </div>
               </td>
               {!hideActions && (
-                <td className="no-print px-6 py-4">
+                <td className="no-print px-6 py-4 col-action">
                   <div className="flex items-center justify-center gap-2 opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
                       onClick={() => onEdit(athlete)}
