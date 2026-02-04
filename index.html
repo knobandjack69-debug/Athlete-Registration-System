@@ -8,19 +8,18 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* รองรับ TH Sarabun PSK/New และใช้ Sarabun เป็นตัวสำรอง */
+        /* ตั้งค่าฟอนต์ TH Niramit AS เป็นหลัก และ Sarabun เป็นตัวรอง */
         @font-face {
-            font-family: 'TH Sarabun PSK';
-            src: local('TH Sarabun PSK'), local('TH Sarabun New');
+            font-family: 'TH Niramit AS';
+            src: local('TH Niramit AS');
         }
 
         * { box-sizing: border-box; }
         body { 
-            font-family: 'TH Sarabun PSK', 'TH Sarabun New', 'Sarabun', sans-serif; 
+            font-family: 'TH Niramit AS', 'Sarabun', sans-serif; 
             background-color: #f8fafc; 
             margin: 0;
             -webkit-font-smoothing: antialiased;
-            font-size: 16px;
         }
         
         /* Custom Scrollbar */
@@ -53,7 +52,7 @@
                 border: none !important;
                 width: 210mm !important;
                 height: 297mm !important; 
-                padding: 15mm 15mm !important; /* ระยะขอบพอดีสำหรับเครื่องปริ้นส่วนใหญ่ */
+                padding: 15mm 15mm !important;
                 margin: 0 !important;
                 overflow: hidden !important;
                 position: relative;
@@ -71,16 +70,16 @@
             }
             
             th, td { 
-                border: 1px solid #000 !important;
-                padding: 6px 8px !important; 
-                font-size: 18px !important; /* เพิ่มขนาดสำหรับ Sarabun */
+                border: 0.5pt solid #000 !important;
+                padding: 8px 10px !important; 
+                font-size: 16px !important;
                 color: black !important;
-                line-height: 1.1 !important;
+                line-height: 1.2 !important;
                 word-wrap: break-word;
             }
 
             th {
-                background-color: #f2f2f2 !important;
+                background-color: #f8fafc !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
                 font-weight: bold !important;
@@ -88,7 +87,7 @@
 
             .signature-section {
                 margin-top: auto;
-                padding-bottom: 12mm;
+                padding-bottom: 10mm;
                 width: 100%;
             }
             
