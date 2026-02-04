@@ -24,7 +24,7 @@
         @media print {
             @page {
                 size: A4 portrait;
-                margin: 1.5cm;
+                margin: 0; /* กำจัดขอบเพื่อให้ URL/วันที่ ไม่แสดง */
             }
             
             .no-print { 
@@ -40,9 +40,12 @@
             .formal-document {
                 box-shadow: none !important;
                 border: none !important;
-                padding: 0 !important;
+                padding: 15mm 20mm !important; /* กำหนดขอบเขตเอกสารมาตรฐาน */
                 margin: 0 !important;
-                width: 100% !important;
+                width: 210mm !important;
+                height: 297mm !important;
+                overflow: hidden !important;
+                position: relative;
             }
 
             table { 
@@ -51,14 +54,14 @@
             }
             
             th, td { 
-                border: 0.5pt solid #334155 !important;
-                padding: 8px !important; 
+                border: 0.5pt solid #000 !important; /* เส้นดำสนิทแบบทางการ */
+                padding: 6px 8px !important; 
                 font-size: 13px !important;
                 color: black !important;
             }
 
             th {
-                background-color: #f8fafc !important;
+                background-color: #f3f4f6 !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
                 font-weight: bold !important;
@@ -70,6 +73,15 @@
 
             .signature-box {
                 page-break-inside: avoid;
+                break-inside: avoid;
+            }
+            
+            /* ช่วยจัดตำแหน่งช่องลงนามให้ชิดล่างกระดาษพอดี */
+            .signature-section {
+                position: absolute;
+                bottom: 25mm;
+                left: 20mm;
+                right: 20mm;
             }
         }
     </style>
@@ -88,7 +100,6 @@
 </head>
 <body>
     <div id="root"></div>
-    <!-- สำคัญ: ต้องมี Script Tag เพื่อรัน React Application -->
     <script type="module" src="./index.tsx"></script>
 </body>
 </html>

@@ -118,7 +118,7 @@ const App: React.FC = () => {
 
   if (isPrintPreview) {
     return (
-      <div className="min-h-screen bg-slate-100 py-10 font-['Sarabun']">
+      <div className="min-h-screen bg-slate-500 py-10 font-['Sarabun'] no-print-bg">
         <div className="fixed top-0 inset-x-0 h-16 bg-slate-900 text-white flex items-center justify-between px-6 z-50 no-print shadow-xl">
           <button 
             onClick={() => setIsPrintPreview(false)}
@@ -127,7 +127,7 @@ const App: React.FC = () => {
             <ChevronLeft className="w-5 h-5" />
             <span>กลับสู่ระบบ</span>
           </button>
-          <div className="text-sm font-medium text-slate-400">แบบฟอร์มบัญชีรายชื่อนักกีฬา (ฉบับทางการ)</div>
+          <div className="text-sm font-medium text-slate-400">ตัวอย่างเอกสาร (1 หน้า A4)</div>
           <button 
             onClick={() => window.print()}
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-xl transition-all font-black shadow-lg shadow-blue-900/20"
@@ -137,55 +137,59 @@ const App: React.FC = () => {
           </button>
         </div>
 
-        <div className="max-w-[210mm] mx-auto bg-white shadow-2xl p-[20mm] min-h-[297mm] mt-10 formal-document print:mt-0 print:p-0">
-          <div className="text-center mb-10 border-b-2 border-slate-900 pb-8 relative">
-            <div className="absolute top-0 right-0 text-[10px] text-slate-400 font-bold uppercase no-print">Official Form A101</div>
-            <img src={LOGO_URL} alt="Logo" className="h-20 w-auto mx-auto mb-4" />
-            <h1 className="text-2xl font-black text-slate-900">บัญชีรายชื่อนักกีฬาและผู้เข้าร่วมกิจกรรม</h1>
-            <p className="text-lg font-bold text-slate-600">ชมรมกีฬาเพื่อความเป็นเลิศ | ประจำปีการศึกษา {new Date().getFullYear() + 543}</p>
+        <div className="max-w-[210mm] min-h-[297mm] mx-auto bg-white shadow-2xl p-[15mm_20mm] formal-document relative overflow-hidden print:shadow-none">
+          <div className="text-center mb-8 border-b-2 border-black pb-6 relative">
+            <div className="absolute top-0 right-0 text-[9px] text-slate-400 font-bold uppercase no-print">DocID: ATH-{Date.now().toString().slice(-6)}</div>
+            <img src={LOGO_URL} alt="Logo" className="h-16 w-auto mx-auto mb-3" />
+            <h1 className="text-xl font-black text-black">บัญชีรายชื่อนักกีฬาและผู้เข้าร่วมกิจกรรม</h1>
+            <p className="text-base font-bold text-slate-700 underline decoration-slate-300 underline-offset-4">
+              ประจำปีการศึกษา {new Date().getFullYear() + 543}
+            </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 mb-8 text-sm">
-            <div className="space-y-1">
-              <p><span className="font-bold">หน่วยงาน:</span> โรงเรียนสาธิตกีฬาพหุศึกษา</p>
-              <p><span className="font-bold">ประเภท:</span> ทะเบียนคุมข้อมูล (Master Data)</p>
+          <div className="grid grid-cols-2 gap-4 mb-6 text-[13px]">
+            <div className="space-y-0.5">
+              <p><span className="font-bold">หน่วยงาน:</span> โรงเรียนและสมาคมพันธมิตรกีฬา</p>
+              <p><span className="font-bold">ประเภท:</span> ทะเบียนประวัตินักกีฬาดีเด่น</p>
             </div>
-            <div className="text-right space-y-1">
+            <div className="text-right space-y-0.5">
               <p><span className="font-bold">วันที่พิมพ์:</span> {new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-              <p><span className="font-bold">รวมนักกีฬาทั้งสิ้น:</span> {athletes.length} รายชื่อ</p>
+              <p><span className="font-bold">รวมจำนวน:</span> {athletes.length} รายชื่อ</p>
             </div>
           </div>
 
-          <AthleteTable 
-            athletes={athletes} 
-            onDelete={() => {}} 
-            onEdit={() => {}} 
-            isDeletingId={null}
-            hideActions={true} 
-          />
+          <div className="min-h-[160mm]">
+            <AthleteTable 
+              athletes={athletes} 
+              onDelete={() => {}} 
+              onEdit={() => {}} 
+              isDeletingId={null}
+              hideActions={true} 
+            />
+          </div>
 
-          <div className="mt-20 grid grid-cols-3 gap-8 signature-box text-center">
-            <div className="space-y-12">
-              <div className="border-b border-slate-400 mx-auto w-4/5 h-16"></div>
-              <div>
-                <p className="font-bold text-sm">(....................................................)</p>
-                <p className="text-xs text-slate-500 mt-1">เจ้าหน้าที่ผู้จัดทำ</p>
-              </div>
+          {/* Signature Section - Positioned at bottom for formal look */}
+          <div className="mt-10 grid grid-cols-3 gap-6 signature-section text-center">
+            <div className="flex flex-col items-center">
+              <div className="h-12 w-full border-b border-dotted border-black mb-2"></div>
+              <p className="font-bold text-[13px]">(....................................................)</p>
+              <p className="text-[11px] text-slate-600 mt-1">เจ้าหน้าที่ผู้รวบรวม</p>
             </div>
-            <div className="space-y-12">
-              <div className="border-b border-slate-400 mx-auto w-4/5 h-16"></div>
-              <div>
-                <p className="font-bold text-sm">(....................................................)</p>
-                <p className="text-xs text-slate-500 mt-1">ครูผู้ควบคุม/ที่ปรึกษา</p>
-              </div>
+            <div className="flex flex-col items-center">
+              <div className="h-12 w-full border-b border-dotted border-black mb-2"></div>
+              <p className="font-bold text-[13px]">(....................................................)</p>
+              <p className="text-[11px] text-slate-600 mt-1">อาจารย์ที่ปรึกษา</p>
             </div>
-            <div className="space-y-12">
-              <div className="border-b border-slate-400 mx-auto w-4/5 h-16"></div>
-              <div>
-                <p className="font-bold text-sm">(....................................................)</p>
-                <p className="text-xs text-slate-500 mt-1">ผู้อำนวยการ/หัวหน้างาน</p>
-              </div>
+            <div className="flex flex-col items-center">
+              <div className="h-12 w-full border-b border-dotted border-black mb-2"></div>
+              <p className="font-bold text-[13px]">(....................................................)</p>
+              <p className="text-[11px] text-slate-600 mt-1">ผู้อำนวยการ/หัวหน้างาน</p>
             </div>
+          </div>
+          
+          <div className="absolute bottom-6 left-20 right-20 flex justify-between text-[9px] text-slate-400 font-medium">
+             <span>* เอกสารนี้สร้างโดยระบบอัตโนมัติ</span>
+             <span>หน้าที่ 1 / 1</span>
           </div>
         </div>
       </div>
