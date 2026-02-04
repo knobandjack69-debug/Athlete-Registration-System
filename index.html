@@ -31,7 +31,7 @@
         @media print {
             @page {
                 size: A4 portrait;
-                margin: 0mm !important;
+                margin: 0mm !important; /* บังคับให้ขอบเป็น 0 ในระดับหน้า */
             }
             
             html, body {
@@ -51,8 +51,8 @@
                 box-shadow: none !important;
                 border: none !important;
                 width: 210mm !important;
-                height: 297mm !important; 
-                padding: 15mm 15mm !important;
+                height: 290mm !important; /* ลดลงเล็กน้อยจาก 297 เพื่อเผื่อขอบล่าง */
+                padding: 10mm 15mm !important; /* ลด padding บน-ล่าง ลงเพื่อให้มีที่เหลือ */
                 margin: 0 !important;
                 overflow: hidden !important;
                 position: relative;
@@ -65,16 +65,16 @@
             table { 
                 width: 100% !important; 
                 border-collapse: collapse !important;
-                margin-top: 5mm;
+                margin-top: 3mm;
                 table-layout: fixed;
             }
             
             th, td { 
                 border: 0.5pt solid #000 !important;
-                padding: 8px 10px !important; 
-                font-size: 16px !important;
+                padding: 6px 8px !important; 
+                font-size: 15px !important;
                 color: black !important;
-                line-height: 1.2 !important;
+                line-height: 1.1 !important;
                 word-wrap: break-word;
             }
 
@@ -86,14 +86,14 @@
             }
 
             .signature-section {
-                margin-top: auto;
-                padding-bottom: 10mm;
+                margin-top: 10mm; /* เปลี่ยนจาก auto เป็น fixed margin */
+                padding-bottom: 5mm;
                 width: 100%;
             }
             
             .page-footer {
                 position: absolute;
-                bottom: 8mm;
+                bottom: 5mm; /* ขยับขึ้นมาจาก 8mm */
                 left: 15mm;
                 right: 15mm;
             }

@@ -127,7 +127,7 @@ const App: React.FC = () => {
             <ChevronLeft className="w-5 h-5" />
             <span>กลับสู่ระบบ</span>
           </button>
-          <div className="text-sm font-bold text-slate-300">ตัวอย่างเอกสาร (TH Niramit AS)</div>
+          <div className="text-sm font-bold text-slate-300">ตัวอย่างเอกสาร (จัดระเบียบพื้นที่ใหม่)</div>
           <button 
             onClick={() => window.print()}
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-xl transition-all font-black shadow-lg shadow-blue-900/20"
@@ -137,27 +137,27 @@ const App: React.FC = () => {
           </button>
         </div>
 
-        <div className="max-w-[210mm] min-h-[296.5mm] mx-auto bg-white shadow-2xl p-[15mm_15mm] formal-document relative flex flex-col print:shadow-none print:m-0">
-          <div className="text-center mb-6 border-b-2 border-black pb-4">
-            <img src={LOGO_URL} alt="Logo" className="h-28 w-auto mx-auto mb-4" />
-            <h1 className="text-3xl font-black text-black leading-tight mb-1">บัญชีรายชื่อนักกีฬาและผู้เข้าร่วมกิจกรรม</h1>
-            <p className="text-xl font-bold text-black uppercase tracking-wide">
+        <div className="max-w-[210mm] min-h-[285mm] mx-auto bg-white shadow-2xl p-[10mm_15mm_15mm_15mm] formal-document relative flex flex-col print:shadow-none print:m-0 print:h-[290mm]">
+          <div className="text-center mb-4 border-b border-black pb-3">
+            <img src={LOGO_URL} alt="Logo" className="h-24 w-auto mx-auto mb-2" />
+            <h1 className="text-2xl font-black text-black leading-tight mb-0.5">บัญชีรายชื่อนักกีฬาและผู้เข้าร่วมกิจกรรม</h1>
+            <p className="text-lg font-bold text-black uppercase tracking-wide">
               ประจำปีการศึกษา {new Date().getFullYear() + 543}
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 mb-4 text-[16px] leading-relaxed text-black font-medium">
-            <div className="space-y-1">
+          <div className="grid grid-cols-2 gap-2 mb-3 text-[15px] leading-tight text-black font-medium">
+            <div className="space-y-0.5">
               <p><span className="font-bold">หน่วยงาน:</span> โรงเรียนและสถาบันเครือข่ายกีฬา</p>
               <p><span className="font-bold">รายการเอกสาร:</span> ทะเบียนคุมข้อมูลนักกีฬารายบุคคล</p>
             </div>
-            <div className="text-right space-y-1">
+            <div className="text-right space-y-0.5">
               <p><span className="font-bold">วันที่ออกเอกสาร:</span> {new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
               <p><span className="font-bold">จำนวนนักกีฬาทั้งสิ้น:</span> {athletes.length} รายชื่อ</p>
             </div>
           </div>
 
-          <div className="flex-grow">
+          <div className="flex-grow overflow-hidden">
             <AthleteTable 
               athletes={athletes} 
               onDelete={() => {}} 
@@ -167,25 +167,25 @@ const App: React.FC = () => {
             />
           </div>
 
-          <div className="signature-section grid grid-cols-3 gap-4 text-center pt-8">
+          <div className="signature-section grid grid-cols-3 gap-6 text-center mt-6">
             <div className="flex flex-col items-center">
-              <div className="h-14 w-full border-b border-dotted border-black mb-2"></div>
-              <p className="font-bold text-[16px] text-black">(....................................................)</p>
-              <p className="text-[14px] text-black mt-1 font-medium">เจ้าหน้าที่ผู้จัดทำข้อมูล</p>
+              <div className="h-10 w-full border-b border-dotted border-black mb-1"></div>
+              <p className="font-bold text-[15px] text-black">(....................................................)</p>
+              <p className="text-[13px] text-black mt-0.5 font-medium">เจ้าหน้าที่ผู้จัดทำข้อมูล</p>
             </div>
             <div className="flex flex-col items-center">
-              <div className="h-14 w-full border-b border-dotted border-black mb-2"></div>
-              <p className="font-bold text-[16px] text-black">(....................................................)</p>
-              <p className="text-[14px] text-black mt-1 font-medium">อาจารย์ผู้ควบคุมทีม</p>
+              <div className="h-10 w-full border-b border-dotted border-black mb-1"></div>
+              <p className="font-bold text-[15px] text-black">(....................................................)</p>
+              <p className="text-[13px] text-black mt-0.5 font-medium">อาจารย์ผู้ควบคุมทีม</p>
             </div>
             <div className="flex flex-col items-center">
-              <div className="h-14 w-full border-b border-dotted border-black mb-2"></div>
-              <p className="font-bold text-[16px] text-black">(....................................................)</p>
-              <p className="text-[14px] text-black mt-1 font-medium">ผู้อำนวยการ/หัวหน้าหน่วยงาน</p>
+              <div className="h-10 w-full border-b border-dotted border-black mb-1"></div>
+              <p className="font-bold text-[15px] text-black">(....................................................)</p>
+              <p className="text-[13px] text-black mt-0.5 font-medium">ผู้อำนวยการ/หัวหน้าหน่วยงาน</p>
             </div>
           </div>
           
-          <div className="page-footer flex justify-between text-[12px] text-black font-bold border-t border-black/10 pt-2">
+          <div className="page-footer flex justify-between text-[11px] text-black font-bold border-t border-black/10 pt-1.5 mt-4">
              <span>* ข้อมูลดึงจากฐานข้อมูลระบบทะเบียนนักกีฬาออนไลน์</span>
              <span>หน้า 1 / 1</span>
           </div>
