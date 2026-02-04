@@ -25,14 +25,15 @@
         @media print {
             @page {
                 size: A4 portrait;
-                margin: 0 !important; /* กำจัดขอบ Browser ทั้งหมด */
+                margin: 0 !important;
             }
             
             html, body {
-                height: 100%;
+                height: 297mm;
                 margin: 0 !important;
                 padding: 0 !important;
                 background-color: white !important;
+                overflow: hidden !important; /* ป้องกันหน้าเกิน */
             }
 
             .no-print { 
@@ -42,34 +43,35 @@
             .formal-document {
                 box-shadow: none !important;
                 border: none !important;
-                /* ลดความสูงลงเล็กน้อยจาก 297 เป็น 296.5 เพื่อไม่ให้เกิดหน้าว่าง */
                 width: 210mm !important;
-                height: 296.5mm !important; 
-                padding: 15mm 20mm !important;
-                margin: 0 auto !important;
+                height: 297mm !important; 
+                padding: 20mm 25mm !important; /* ระยะขอบกระดาษมาตรฐาน */
+                margin: 0 !important;
                 overflow: hidden !important;
                 position: relative;
-                page-break-after: avoid;
-                break-after: avoid;
+                display: flex;
+                flex-direction: column;
             }
 
             table { 
                 width: 100% !important; 
                 border-collapse: collapse !important;
+                margin-top: 5mm;
             }
             
             th, td { 
                 border: 0.5pt solid #000 !important;
-                padding: 5px 8px !important; 
-                font-size: 13px !important;
+                padding: 10px 12px !important; /* เพิ่ม Padding ให้ดูไม่อึดอัด */
+                font-size: 15px !important; /* ขยายขนาดตัวหนังสือในตาราง */
                 color: black !important;
-                line-height: 1.2 !important;
+                line-height: 1.4 !important;
             }
 
             th {
-                background-color: #f3f4f6 !important;
+                background-color: #f0f0f0 !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
+                font-weight: bold !important;
             }
 
             .col-action {
@@ -77,10 +79,15 @@
             }
 
             .signature-section {
+                margin-top: auto; /* ดันไปล่างสุดของพื้นที่เนื้อหา */
+                padding-bottom: 15mm;
+            }
+            
+            .page-footer {
                 position: absolute;
-                bottom: 20mm; /* ปรับขึ้นมาอีกนิด */
-                left: 20mm;
-                right: 20mm;
+                bottom: 10mm; /* ขยับขึ้นมาจากขอบกระดาษ */
+                left: 25mm;
+                right: 25mm;
             }
         }
     </style>

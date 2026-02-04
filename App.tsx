@@ -118,7 +118,7 @@ const App: React.FC = () => {
 
   if (isPrintPreview) {
     return (
-      <div className="min-h-screen bg-slate-500 py-10 font-['Sarabun'] no-print-bg">
+      <div className="min-h-screen bg-slate-600 py-10 font-['Sarabun'] no-print-bg">
         <div className="fixed top-0 inset-x-0 h-16 bg-slate-900 text-white flex items-center justify-between px-6 z-50 no-print shadow-xl">
           <button 
             onClick={() => setIsPrintPreview(false)}
@@ -127,7 +127,7 @@ const App: React.FC = () => {
             <ChevronLeft className="w-5 h-5" />
             <span>กลับสู่ระบบ</span>
           </button>
-          <div className="text-sm font-medium text-slate-400">แบบฟอร์ม (1 หน้า A4)</div>
+          <div className="text-sm font-bold text-slate-300">ตัวอย่างเอกสารฉบับจริง (A4)</div>
           <button 
             onClick={() => window.print()}
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-xl transition-all font-black shadow-lg shadow-blue-900/20"
@@ -137,26 +137,27 @@ const App: React.FC = () => {
           </button>
         </div>
 
-        <div className="max-w-[210mm] min-h-[296.5mm] mx-auto bg-white shadow-2xl p-[15mm_20mm] formal-document relative overflow-hidden print:shadow-none print:m-0">
-          <div className="text-center mb-6 border-b-2 border-black pb-4 relative">
-            <div className="absolute top-0 right-0 text-[8px] text-slate-400 font-bold no-print">ATH-v2.0</div>
-            <img src={LOGO_URL} alt="Logo" className="h-14 w-auto mx-auto mb-2" />
-            <h1 className="text-lg font-black text-black leading-tight">บัญชีรายชื่อนักกีฬาและผู้เข้าร่วมกิจกรรม</h1>
-            <p className="text-sm font-bold text-slate-700">ประจำปีการศึกษา {new Date().getFullYear() + 543}</p>
+        <div className="max-w-[210mm] min-h-[297mm] mx-auto bg-white shadow-2xl p-[20mm_25mm] formal-document relative flex flex-col print:shadow-none print:m-0">
+          <div className="text-center mb-8 border-b-2 border-black pb-6">
+            <img src={LOGO_URL} alt="Logo" className="h-24 w-auto mx-auto mb-4" />
+            <h1 className="text-2xl font-black text-black leading-tight mb-2">บัญชีรายชื่อนักกีฬาและผู้เข้าร่วมกิจกรรม</h1>
+            <p className="text-lg font-bold text-slate-800 uppercase tracking-wide">
+              ประจำปีการศึกษา {new Date().getFullYear() + 543}
+            </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 mb-4 text-[12px]">
-            <div className="space-y-0.5">
+          <div className="grid grid-cols-2 gap-4 mb-6 text-[14px] leading-relaxed">
+            <div className="space-y-1">
               <p><span className="font-bold">หน่วยงาน:</span> โรงเรียนและสถาบันเครือข่ายกีฬา</p>
-              <p><span className="font-bold">รายการ:</span> ทะเบียนคุมข้อมูลนักกีฬา</p>
+              <p><span className="font-bold">รายการเอกสาร:</span> ทะเบียนคุมข้อมูลนักกีฬารายบุคคล</p>
             </div>
-            <div className="text-right space-y-0.5">
-              <p><span className="font-bold">วันที่ออก:</span> {new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-              <p><span className="font-bold">จำนวน:</span> {athletes.length} รายชื่อ</p>
+            <div className="text-right space-y-1">
+              <p><span className="font-bold">วันที่ออกเอกสาร:</span> {new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+              <p><span className="font-bold">จำนวนนักกีฬาทั้งสิ้น:</span> {athletes.length} รายชื่อ</p>
             </div>
           </div>
 
-          <div className="overflow-hidden">
+          <div className="flex-grow">
             <AthleteTable 
               athletes={athletes} 
               onDelete={() => {}} 
@@ -166,27 +167,26 @@ const App: React.FC = () => {
             />
           </div>
 
-          {/* Fixed Bottom Signature Section */}
-          <div className="signature-section grid grid-cols-3 gap-6 text-center">
+          <div className="signature-section grid grid-cols-3 gap-8 text-center pt-10">
             <div className="flex flex-col items-center">
-              <div className="h-10 w-full border-b border-dotted border-black mb-1"></div>
-              <p className="font-bold text-[12px]">(....................................................)</p>
-              <p className="text-[10px] text-slate-600 mt-1">ผู้จัดทำข้อมูล</p>
+              <div className="h-12 w-full border-b border-dotted border-black mb-2"></div>
+              <p className="font-bold text-[14px]">(....................................................)</p>
+              <p className="text-[12px] text-slate-700 mt-1 font-medium">เจ้าหน้าที่ผู้จัดทำข้อมูล</p>
             </div>
             <div className="flex flex-col items-center">
-              <div className="h-10 w-full border-b border-dotted border-black mb-1"></div>
-              <p className="font-bold text-[12px]">(....................................................)</p>
-              <p className="text-[10px] text-slate-600 mt-1">อาจารย์ผู้ควบคุม</p>
+              <div className="h-12 w-full border-b border-dotted border-black mb-2"></div>
+              <p className="font-bold text-[14px]">(....................................................)</p>
+              <p className="text-[12px] text-slate-700 mt-1 font-medium">อาจารย์ผู้ควบคุมทีม</p>
             </div>
             <div className="flex flex-col items-center">
-              <div className="h-10 w-full border-b border-dotted border-black mb-1"></div>
-              <p className="font-bold text-[12px]">(....................................................)</p>
-              <p className="text-[10px] text-slate-600 mt-1">ผู้อนุมัติรายการ</p>
+              <div className="h-12 w-full border-b border-dotted border-black mb-2"></div>
+              <p className="font-bold text-[14px]">(....................................................)</p>
+              <p className="text-[12px] text-slate-700 mt-1 font-medium">ผู้อำนวยการ/หัวหน้าหน่วยงาน</p>
             </div>
           </div>
           
-          <div className="absolute bottom-4 left-20 right-20 flex justify-between text-[8px] text-slate-400 font-medium">
-             <span>* ข้อมูลล่าสุดจากระบบทะเบียนอิเล็กทรอนิกส์</span>
+          <div className="page-footer flex justify-between text-[11px] text-slate-400 font-bold border-t border-slate-100 pt-2">
+             <span>* ข้อมูลดึงจากฐานข้อมูลระบบทะเบียนนักกีฬาออนไลน์</span>
              <span>หน้า 1 / 1</span>
           </div>
         </div>
