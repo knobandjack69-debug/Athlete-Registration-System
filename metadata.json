@@ -1,0 +1,7 @@
+{
+  "name": "Athlete Registration System",
+  "description": "ระบบลงทะเบียนนักกีฬา เชื่อมต่อ Google Sheets และ Drive แบบเรียลไทม์",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
