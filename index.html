@@ -8,12 +8,19 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        /* รองรับ TH Sarabun PSK/New และใช้ Sarabun เป็นตัวสำรอง */
+        @font-face {
+            font-family: 'TH Sarabun PSK';
+            src: local('TH Sarabun PSK'), local('TH Sarabun New');
+        }
+
         * { box-sizing: border-box; }
         body { 
-            font-family: 'Sarabun', sans-serif; 
+            font-family: 'TH Sarabun PSK', 'TH Sarabun New', 'Sarabun', sans-serif; 
             background-color: #f8fafc; 
             margin: 0;
             -webkit-font-smoothing: antialiased;
+            font-size: 16px;
         }
         
         /* Custom Scrollbar */
@@ -25,15 +32,16 @@
         @media print {
             @page {
                 size: A4 portrait;
-                margin: 0 !important;
+                margin: 0mm !important;
             }
             
             html, body {
+                width: 210mm;
                 height: 297mm;
                 margin: 0 !important;
                 padding: 0 !important;
                 background-color: white !important;
-                overflow: hidden !important; /* ป้องกันหน้าเกิน */
+                overflow: hidden !important;
             }
 
             .no-print { 
@@ -45,49 +53,50 @@
                 border: none !important;
                 width: 210mm !important;
                 height: 297mm !important; 
-                padding: 20mm 25mm !important; /* ระยะขอบกระดาษมาตรฐาน */
+                padding: 15mm 15mm !important; /* ระยะขอบพอดีสำหรับเครื่องปริ้นส่วนใหญ่ */
                 margin: 0 !important;
                 overflow: hidden !important;
                 position: relative;
                 display: flex;
                 flex-direction: column;
+                background: white !important;
+                color: black !important;
             }
 
             table { 
                 width: 100% !important; 
                 border-collapse: collapse !important;
                 margin-top: 5mm;
+                table-layout: fixed;
             }
             
             th, td { 
-                border: 0.5pt solid #000 !important;
-                padding: 10px 12px !important; /* เพิ่ม Padding ให้ดูไม่อึดอัด */
-                font-size: 15px !important; /* ขยายขนาดตัวหนังสือในตาราง */
+                border: 1px solid #000 !important;
+                padding: 6px 8px !important; 
+                font-size: 18px !important; /* เพิ่มขนาดสำหรับ Sarabun */
                 color: black !important;
-                line-height: 1.4 !important;
+                line-height: 1.1 !important;
+                word-wrap: break-word;
             }
 
             th {
-                background-color: #f0f0f0 !important;
+                background-color: #f2f2f2 !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
                 font-weight: bold !important;
             }
 
-            .col-action {
-                display: none !important;
-            }
-
             .signature-section {
-                margin-top: auto; /* ดันไปล่างสุดของพื้นที่เนื้อหา */
-                padding-bottom: 15mm;
+                margin-top: auto;
+                padding-bottom: 12mm;
+                width: 100%;
             }
             
             .page-footer {
                 position: absolute;
-                bottom: 10mm; /* ขยับขึ้นมาจากขอบกระดาษ */
-                left: 25mm;
-                right: 25mm;
+                bottom: 8mm;
+                left: 15mm;
+                right: 15mm;
             }
         }
     </style>
