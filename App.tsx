@@ -14,7 +14,9 @@ import {
   Printer,
   CheckSquare,
   Square,
-  ChevronRight
+  ChevronRight,
+  Layers,
+  MousePointer2
 } from 'lucide-react';
 import { Order, OrderFormData } from './types.ts';
 import OrderForm from './components/OrderForm.tsx';
@@ -48,7 +50,7 @@ const App: React.FC = () => {
   // Selection state for bulk printing
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedOrderIds, setSelectedOrderIds] = useState<Set<string>>(new Set());
-  const [showPrintOptions, setShowPrintOptions] = useState(false);
+  const [showPrintModal, setShowPrintModal] = useState(false);
 
   const fetchOrders = useCallback(async (showLoading = true) => {
     if (showLoading) setIsLoading(true);
@@ -158,12 +160,16 @@ const App: React.FC = () => {
   };
 
   const handlePrintAll = () => {
+    if (orders.length === 0) {
+      alert('ไม่มีรายการให้พิมพ์');
+      return;
+    }
     setBulkPrintingOrders(orders);
-    setShowPrintOptions(false);
+    setShowPrintModal(false);
     setTimeout(() => {
       window.print();
       setBulkPrintingOrders([]);
-    }, 500);
+    }, 800);
   };
 
   const handlePrintSelected = () => {
@@ -178,7 +184,7 @@ const App: React.FC = () => {
       setBulkPrintingOrders([]);
       setIsSelectionMode(false);
       setSelectedOrderIds(new Set());
-    }, 500);
+    }, 800);
   };
 
   return (
@@ -200,7 +206,7 @@ const App: React.FC = () => {
                 </div>
                 <h1 className="text-3xl md:text-5xl font-black tracking-tight">ระบบสั่งซื้อ<span className="text-pink-200">ดอกไม้</span></h1>
               </div>
-              <p className="text-white/80 font-bold uppercase tracking-[0.2em] text-[10px]">Flower Ordering & Management Professional</p>
+              <p className="text-white/80 font-bold uppercase tracking-[0.2em] text-[10px]">Professional Flower Management Tool</p>
             </div>
             
             <div className="flex flex-wrap justify-center bg-white/10 backdrop-blur-md p-2 rounded-[32px] border border-white/20 gap-2">
@@ -248,7 +254,7 @@ const App: React.FC = () => {
               <div className="w-20 h-20 border-8 border-rose-100 border-t-rose-500 rounded-full animate-spin"></div>
               <Flower className="w-8 h-8 text-rose-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
             </div>
-            <p className="font-black text-slate-400 text-lg">กำลังดึงข้อมูลจากระบบ...</p>
+            <p className="font-black text-slate-400 text-lg">กำลังโหลดข้อมูล...</p>
           </div>
         ) : fetchError ? (
           <div className="bg-white rounded-[48px] p-16 shadow-2xl text-center border-2 border-red-50">
@@ -256,9 +262,8 @@ const App: React.FC = () => {
               <WifiOff className="w-12 h-12 text-red-400" />
             </div>
             <h3 className="text-2xl font-black text-slate-800 mb-4 whitespace-pre-line">{fetchError}</h3>
-            <p className="text-slate-500 font-bold mb-8">ตรวจสอบว่าคุณได้เลือก "Anyone" ในหน้า Deployment ของ Apps Script แล้วหรือยัง?</p>
             <button onClick={() => fetchOrders()} className="bg-rose-500 text-white px-10 py-5 rounded-[24px] font-black shadow-xl shadow-rose-200 hover:bg-rose-600 transition-all flex items-center gap-3 mx-auto">
-              <RefreshCw className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} /> ลองเชื่อมต่อใหม่อีกครั้ง
+              <RefreshCw className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} /> ลองใหม่
             </button>
           </div>
         ) : (
@@ -277,27 +282,27 @@ const App: React.FC = () => {
             ) : (
               <div className="bg-white rounded-[48px] shadow-2xl border border-white overflow-hidden">
                 
-                {/* Printing Control Bar */}
+                {/* Mode: Selection */}
                 {isSelectionMode ? (
-                  <div className="bg-slate-900 text-white p-6 flex flex-col md:flex-row justify-between items-center gap-4 animate-in slide-in-from-top duration-300">
-                    <div className="flex items-center gap-4">
-                      <button onClick={() => { setIsSelectionMode(false); setSelectedOrderIds(new Set()); }} className="p-2 hover:bg-white/10 rounded-full transition-colors">
+                  <div className="bg-slate-900 text-white p-8 flex flex-col md:flex-row justify-between items-center gap-6 animate-in slide-in-from-top duration-500">
+                    <div className="flex items-center gap-5">
+                      <button onClick={() => { setIsSelectionMode(false); setSelectedOrderIds(new Set()); }} className="bg-white/10 p-3 hover:bg-white/20 rounded-2xl transition-all">
                         <X className="w-6 h-6" />
                       </button>
                       <div>
-                        <h3 className="text-xl font-black">โหมดเลือกรายการพิมพ์</h3>
-                        <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">เลือก {selectedOrderIds.size} รายการที่ต้องการพิมพ์</p>
+                        <h3 className="text-2xl font-black">ระบุรายการที่จะพิมพ์</h3>
+                        <p className="text-rose-400 text-sm font-bold">เลือกแล้ว {selectedOrderIds.size} รายการ</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <button onClick={selectAllFiltered} className="px-4 py-2 border border-white/20 rounded-xl text-xs font-black hover:bg-white/10 transition-all">เลือกทั้งหมดในหน้านี้</button>
-                      <button onClick={deselectAllFiltered} className="px-4 py-2 border border-white/20 rounded-xl text-xs font-black hover:bg-white/10 transition-all">ยกเลิกทั้งหมด</button>
+                    <div className="flex flex-wrap items-center justify-center gap-3">
+                      <button onClick={selectAllFiltered} className="px-5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-xs font-black hover:bg-white/10 transition-all">เลือกทั้งหมดที่เห็น</button>
+                      <button onClick={deselectAllFiltered} className="px-5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-xs font-black hover:bg-white/10 transition-all">ยกเลิกที่เลือกไว้</button>
                       <button 
                         onClick={handlePrintSelected}
                         disabled={selectedOrderIds.size === 0}
-                        className="bg-green-500 hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-8 py-3 rounded-2xl font-black shadow-xl flex items-center gap-2 transition-all active:scale-95"
+                        className="bg-green-500 hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-10 py-4 rounded-[20px] font-black shadow-2xl shadow-green-500/20 flex items-center gap-3 transition-all active:scale-95 ml-2"
                       >
-                        <Printer className="w-5 h-5" /> พิมพ์รายการที่เลือก
+                        <Printer className="w-6 h-6" /> พิมพ์รายการที่เลือก
                       </button>
                     </div>
                   </div>
@@ -305,9 +310,9 @@ const App: React.FC = () => {
                   <div className="p-10 border-b border-slate-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div>
                       <h2 className="text-3xl font-black text-slate-800">
-                        {activeTab === 'search' ? 'ค้นหาข้อมูล' : 'รายการสั่งซื้อทั้งหมด'}
+                        {activeTab === 'search' ? 'ผลการค้นหา' : 'ประวัติการสั่งซื้อ'}
                       </h2>
-                      <p className="text-slate-400 font-bold text-sm uppercase tracking-widest mt-1">Data Management Center</p>
+                      <p className="text-slate-400 font-bold text-sm uppercase tracking-widest mt-1">Order Management Center</p>
                     </div>
                     
                     <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
@@ -320,7 +325,7 @@ const App: React.FC = () => {
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             placeholder="ค้นหา..."
-                            className="w-full pl-12 pr-10 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-[20px] focus:bg-white focus:border-rose-200 outline-none font-bold text-slate-600 shadow-inner transition-all text-sm"
+                            className="w-full pl-12 pr-10 py-4 bg-slate-50 border-2 border-slate-100 rounded-[20px] focus:bg-white focus:border-rose-200 outline-none font-bold text-slate-600 shadow-inner transition-all text-sm"
                           />
                           {searchTerm && (
                             <button onClick={() => setSearchTerm('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-rose-500">
@@ -330,48 +335,18 @@ const App: React.FC = () => {
                         </div>
                       )}
                       
-                      {/* Print Options Popover Control */}
-                      <div className="relative">
-                        <button 
-                          onClick={() => setShowPrintOptions(!showPrintOptions)}
-                          className="bg-rose-500 text-white px-6 py-3.5 rounded-[20px] font-black shadow-lg shadow-rose-200 hover:bg-rose-600 transition-all flex items-center gap-2 text-sm"
-                        >
-                          <Printer className="w-5 h-5" /> พิมพ์รายการ
-                        </button>
-                        
-                        {showPrintOptions && (
-                          <div className="absolute right-0 mt-2 w-64 bg-white rounded-[24px] shadow-2xl border border-slate-100 p-2 z-[100] animate-in zoom-in-95 duration-200 origin-top-right">
-                            <button 
-                              onClick={handlePrintAll}
-                              className="w-full flex items-center justify-between px-5 py-4 hover:bg-slate-50 rounded-[18px] transition-all group"
-                            >
-                              <div className="text-left">
-                                <p className="font-black text-slate-800 text-sm">พิมพ์ทั้งหมด</p>
-                                <p className="text-[10px] text-slate-400 font-bold">ดึงข้อมูลทั้งหมดไปพิมพ์ทันที</p>
-                              </div>
-                              <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-rose-500 transition-colors" />
-                            </button>
-                            <div className="h-px bg-slate-50 my-1 mx-2" />
-                            <button 
-                              onClick={() => { setIsSelectionMode(true); setShowPrintOptions(false); }}
-                              className="w-full flex items-center justify-between px-5 py-4 hover:bg-slate-50 rounded-[18px] transition-all group"
-                            >
-                              <div className="text-left">
-                                <p className="font-black text-slate-800 text-sm">เลือกรายการที่พิมพ์</p>
-                                <p className="text-[10px] text-slate-400 font-bold">เลือกเฉพาะรายการที่ต้องการ</p>
-                              </div>
-                              <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-rose-500 transition-colors" />
-                            </button>
-                          </div>
-                        )}
-                      </div>
+                      <button 
+                        onClick={() => setShowPrintModal(true)}
+                        className="bg-rose-500 text-white px-8 py-4 rounded-[20px] font-black shadow-xl shadow-rose-200 hover:bg-rose-600 transition-all flex items-center gap-3"
+                      >
+                        <Printer className="w-6 h-6" /> พิมพ์รายการ
+                      </button>
 
                       <button 
                         onClick={() => fetchOrders(false)} 
-                        title="รีเฟรชข้อมูล"
                         className="bg-slate-50 p-4 rounded-2xl text-slate-400 hover:text-rose-600 transition-all hover:bg-rose-50 border border-slate-100"
                       >
-                        <RefreshCw className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} />
+                        <RefreshCw className={`w-6 h-6 ${isRefreshing ? 'animate-spin' : ''}`} />
                       </button>
                     </div>
                   </div>
@@ -394,6 +369,60 @@ const App: React.FC = () => {
         )}
       </main>
 
+      {/* Print Options Modal */}
+      {showPrintModal && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-white w-full max-w-lg rounded-[48px] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 border border-white">
+            <div className="p-10 pb-0 flex justify-between items-start">
+              <div>
+                <div className="bg-rose-50 w-16 h-16 rounded-3xl flex items-center justify-center text-rose-500 mb-6">
+                  <Printer className="w-8 h-8" />
+                </div>
+                <h3 className="text-3xl font-black text-slate-800 mb-2">เลือกรูปแบบการพิมพ์</h3>
+                <p className="text-slate-400 font-bold">คุณต้องการพิมพ์รายการสั่งซื้ออย่างไร?</p>
+              </div>
+              <button onClick={() => setShowPrintModal(false)} className="text-slate-300 hover:text-slate-500 transition-colors p-2">
+                <X className="w-8 h-8" />
+              </button>
+            </div>
+            
+            <div className="p-10 space-y-4">
+              <button 
+                onClick={handlePrintAll}
+                className="w-full flex items-center gap-6 p-6 rounded-[32px] border-2 border-slate-100 hover:border-rose-200 hover:bg-rose-50 transition-all group text-left"
+              >
+                <div className="bg-white w-14 h-14 rounded-2xl shadow-sm flex items-center justify-center text-rose-400 group-hover:scale-110 transition-transform">
+                  <Layers className="w-7 h-7" />
+                </div>
+                <div>
+                  <p className="text-xl font-black text-slate-800">พิมพ์ทั้งหมด ({orders.length} รายการ)</p>
+                  <p className="text-sm font-bold text-slate-400">ระบบจะดึงข้อมูลทุกรายการในฐานข้อมูลมาพิมพ์</p>
+                </div>
+              </button>
+
+              <button 
+                onClick={() => { setIsSelectionMode(true); setShowPrintModal(false); }}
+                className="w-full flex items-center gap-6 p-6 rounded-[32px] border-2 border-slate-100 hover:border-blue-200 hover:bg-blue-50 transition-all group text-left"
+              >
+                <div className="bg-white w-14 h-14 rounded-2xl shadow-sm flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform">
+                  <MousePointer2 className="w-7 h-7" />
+                </div>
+                <div>
+                  <p className="text-xl font-black text-slate-800">เลือกพิมพ์บางรายการ</p>
+                  <p className="text-sm font-bold text-slate-400">กลับไปยังหน้าตารางเพื่อติ๊กเลือกรายการที่ต้องการ</p>
+                </div>
+              </button>
+            </div>
+            
+            <div className="px-10 pb-10">
+              <button onClick={() => setShowPrintModal(false)} className="w-full py-4 text-slate-400 font-black hover:text-slate-600 transition-all">
+                ยกเลิก
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <OrderDetailsModal 
         isOpen={!!viewingOrder} 
         order={viewingOrder} 
@@ -408,11 +437,6 @@ const App: React.FC = () => {
         title="ยกเลิกคำสั่งซื้อ?"
         description={`คุณแน่ใจหรือไม่ว่าต้องการลบรายการสั่งซื้อของคุณ ${deleteTarget?.recipientName}? ข้อมูลนี้จะไม่สามารถกู้คืนได้`}
       />
-      
-      {/* Click outside print options */}
-      {showPrintOptions && (
-        <div className="fixed inset-0 z-50" onClick={() => setShowPrintOptions(false)} />
-      )}
     </div>
   );
 };
