@@ -4,116 +4,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบลงทะเบียนนักกีฬา - Official Document System</title>
+    <title>Flower Ordering System - ระบบสั่งซื้อดอกไม้</title>
+    
+    <!-- Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <style>
-        /* ตั้งค่าฟอนต์ TH Niramit AS เป็นหลัก และ Sarabun เป็นตัวรอง */
         @font-face {
-            font-family: 'TH Niramit AS';
-            src: local('TH Niramit AS');
+            font-family: 'TH Sarabun New';
+            src: local('TH Sarabun New'), local('Sarabun');
         }
 
         * { box-sizing: border-box; }
         body { 
-            font-family: 'TH Niramit AS', 'Sarabun', sans-serif; 
-            background-color: #f8fafc; 
+            font-family: 'Sarabun', 'TH Sarabun New', sans-serif; 
             margin: 0;
+            background-color: #f8fafc;
             -webkit-font-smoothing: antialiased;
         }
         
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
-        /* สไตล์สำหรับการพิมพ์ (Print Mode) */
+        .fade-in-up {
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Print Settings */
         @media print {
-            @page {
-                size: A4 portrait;
-                margin: 0mm !important; /* บังคับให้ขอบเป็น 0 ในระดับหน้า */
+            @page { 
+                size: A4; 
+                margin: 15mm; 
             }
-            
-            html, body {
-                width: 210mm;
-                height: 297mm;
-                margin: 0 !important;
-                padding: 0 !important;
-                background-color: white !important;
-                overflow: hidden !important;
-            }
-
-            .no-print { 
-                display: none !important; 
-            }
-            
-            .formal-document {
-                box-shadow: none !important;
-                border: none !important;
-                width: 210mm !important;
-                height: 290mm !important; /* ลดลงเล็กน้อยจาก 297 เพื่อเผื่อขอบล่าง */
-                padding: 10mm 15mm !important; /* ลด padding บน-ล่าง ลงเพื่อให้มีที่เหลือ */
-                margin: 0 !important;
-                overflow: hidden !important;
-                position: relative;
-                display: flex;
-                flex-direction: column;
-                background: white !important;
+            body { 
+                background: white !important; 
                 color: black !important;
             }
-
-            table { 
-                width: 100% !important; 
-                border-collapse: collapse !important;
-                margin-top: 3mm;
-                table-layout: fixed;
+            #root > :not(#printable-area) {
+                display: none !important;
             }
-            
-            th, td { 
-                border: 0.5pt solid #000 !important;
-                padding: 6px 8px !important; 
-                font-size: 15px !important;
-                color: black !important;
-                line-height: 1.1 !important;
-                word-wrap: break-word;
-            }
-
-            th {
-                background-color: #f8fafc !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-                font-weight: bold !important;
-            }
-
-            .signature-section {
-                margin-top: 10mm; /* เปลี่ยนจาก auto เป็น fixed margin */
-                padding-bottom: 5mm;
+            #printable-area {
+                display: block !important;
+                position: absolute;
+                left: 0;
+                top: 0;
                 width: 100%;
             }
-            
-            .page-footer {
-                position: absolute;
-                bottom: 5mm; /* ขยับขึ้นมาจาก 8mm */
-                left: 15mm;
-                right: 15mm;
-            }
+            .no-print { display: none !important; }
+        }
+
+        #printable-area {
+            display: none;
         }
     </style>
     <script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@19.0.0",
-    "react-dom": "https://esm.sh/react-dom@19.0.0",
-    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
-    "lucide-react": "https://esm.sh/lucide-react@0.460.0",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
-    "react/": "https://esm.sh/react@^19.2.4/"
-  }
-}
-</script>
+    {
+      "imports": {
+        "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+        "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
+        "react": "https://esm.sh/react@^19.2.4",
+        "react/": "https://esm.sh/react@^19.2.4/",
+        "@google/genai": "https://esm.sh/@google/genai@^1.40.0"
+      }
+    }
+    </script>
 </head>
 <body>
     <div id="root"></div>
-    <script type="module" src="./index.tsx"></script>
 </body>
 </html>

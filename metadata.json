@@ -1,6 +1,6 @@
 {
-  "name": "Athlete Registration System",
-  "description": "ระบบลงทะเบียนนักกีฬา เชื่อมต่อ Google Sheets และ Drive แบบเรียลไทม์",
+  "name": "Flower Ordering System",
+  "description": "ระบบสั่งซื้อดอกไม้ พร้อมระบบแนะนำข้อความด้วย AI และการจัดการข้อมูลผ่าน Google Sheets",
   "requestFramePermissions": [
     "camera"
   ]

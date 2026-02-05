@@ -1,35 +1,56 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { UserPlus, Printer, User, Edit3, CheckCircle2, Loader2, RefreshCw, AlertTriangle, X, ChevronLeft } from 'lucide-react';
-import { Athlete, AthleteFormData } from './types';
-import RegistrationForm from './components/RegistrationForm';
-import AthleteTable from './components/AthleteTable';
-import { athleteService } from './athleteService';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { 
+  Flower, 
+  PlusCircle, 
+  Search, 
+  List, 
+  BarChart3, 
+  Loader2, 
+  RefreshCw, 
+  CheckCircle2, 
+  WifiOff,
+  X
+} from 'lucide-react';
+import { Order, OrderFormData } from './types';
+import OrderForm from './components/OrderForm';
+import OrderTable from './components/OrderTable';
+import OrderDetailsModal from './components/OrderDetailsModal';
+import PrintTemplate from './components/PrintTemplate';
+import StatisticsDashboard from './components/StatisticsDashboard';
+import DeleteModal from './components/DeleteModal';
+import { orderService } from './orderService';
 
 const App: React.FC = () => {
-  const [athletes, setAthletes] = useState<Athlete[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [activeTab, setActiveTab] = useState<'create' | 'list' | 'search' | 'stats'>('list');
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
-  const [editingAthlete, setEditingAthlete] = useState<Athlete | null>(null);
-  const [showSuccessToast, setShowSuccessToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
-  const [isPrintPreview, setIsPrintPreview] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editingOrder, setEditingOrder] = useState<Order | null>(null);
+  const [viewingOrder, setViewingOrder] = useState<Order | null>(null);
+  const [printingOrder, setPrintingOrder] = useState<Order | null>(null);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   
-  const [athleteToDelete, setAthleteToDelete] = useState<Athlete | null>(null);
+  // Search State
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  const [deleteTarget, setDeleteTarget] = useState<Order | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  
+  const [showToast, setShowToast] = useState(false);
+  const [toastMsg, setToastMsg] = useState('');
 
-  const LOGO_URL = "https://img5.pic.in.th/file/secure-sv1/logo_small_index.png";
-
-  const fetchAthletes = useCallback(async (showLoading = true) => {
+  const fetchOrders = useCallback(async (showLoading = true) => {
     if (showLoading) setIsLoading(true);
     else setIsRefreshing(true);
+    setFetchError(null);
     
     try {
-      const data = await athleteService.getAthletes();
-      setAthletes(data || []);
-    } catch (err) {
-      console.error('Fetch error:', err);
+      const data = await orderService.getOrders();
+      setOrders(data);
+    } catch (err: any) {
+      setFetchError('ไม่สามารถเชื่อมต่อฐานข้อมูลได้ กรุณาลองใหม่');
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
@@ -37,291 +58,230 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    fetchAthletes();
-  }, [fetchAthletes]);
+    fetchOrders();
+  }, [fetchOrders]);
 
-  const handleFormSubmit = useCallback(async (data: AthleteFormData) => {
+  // กรองข้อมูลตามคำค้นหา
+  const filteredOrders = useMemo(() => {
+    if (!searchTerm.trim()) return orders;
+    const term = searchTerm.toLowerCase();
+    return orders.filter(order => 
+      order.recipientName.toLowerCase().includes(term) || 
+      order.phone.includes(term) ||
+      order.id.toLowerCase().includes(term)
+    );
+  }, [orders, searchTerm]);
+
+  const triggerToast = (msg: string) => {
+    setToastMsg(msg);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  };
+
+  const handleFormSubmit = async (data: OrderFormData) => {
     setIsSubmitting(true);
-    
-    const originalAthletes = [...athletes];
-    if (editingAthlete) {
-      setAthletes(prev => prev.map(a => a.id === editingAthlete.id ? { ...a, ...data } : a));
-    }
-
     try {
       let result;
-      if (editingAthlete) {
-        result = await athleteService.updateAthlete(editingAthlete.id, data);
-        setToastMessage('อัปเดตข้อมูลสำเร็จ');
+      if (editingOrder) {
+        result = await orderService.updateOrder(editingOrder.id, data);
+        if (result.success) triggerToast('อัปเดตคำสั่งซื้อสำเร็จ!');
       } else {
-        result = await athleteService.registerAthlete(data);
-        setToastMessage('ลงทะเบียนสำเร็จ');
-        if (result.success && result.id) {
-           const newAthlete: Athlete = {
-             ...data,
-             id: result.id,
-             createdAt: Date.now()
-           };
-           setAthletes(prev => [newAthlete, ...prev]);
-        }
+        result = await orderService.createOrder(data);
+        if (result.success) triggerToast('ยืนยันการสั่งซื้อเรียบร้อย!');
       }
 
-      if (result.success) {
-        setShowSuccessToast(true);
-        setEditingAthlete(null);
-        setTimeout(() => setShowSuccessToast(false), 3000);
-        fetchAthletes(false); 
+      if (result && result.success) {
+        setEditingOrder(null);
+        setActiveTab('list');
+        fetchOrders(false);
       } else {
-        setAthletes(originalAthletes);
-        alert('เกิดข้อผิดพลาด: ' + (result.error || 'ไม่สามารถบันทึกได้'));
+        alert('ผิดพลาด: ' + (result?.error || 'ไม่สามารถดำเนินการได้'));
       }
     } catch (err) {
-      setAthletes(originalAthletes);
       alert('การเชื่อมต่อล้มเหลว');
     } finally {
       setIsSubmitting(false);
     }
-  }, [athletes, editingAthlete, fetchAthletes]);
+  };
 
-  const confirmDelete = async () => {
-    if (!athleteToDelete) return;
-    
-    const id = String(athleteToDelete.id);
-    const originalAthletes = [...athletes];
-    
-    setAthletes(prev => prev.filter(a => a.id !== id));
-    setIsDeletingId(id);
-    setAthleteToDelete(null);
-
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
     try {
-      const result = await athleteService.deleteAthlete(id);
-      if (result.success) {
-        setToastMessage('ลบข้อมูลเรียบร้อยแล้ว');
-        setShowSuccessToast(true);
-        setTimeout(() => setShowSuccessToast(false), 3000);
+      const result = await orderService.deleteOrder(deleteTarget.id);
+      if (result && result.success) {
+        triggerToast('ยกเลิกรายการสั่งซื้อสำเร็จ');
+        setOrders(prev => prev.filter(o => o.id !== deleteTarget.id));
       } else {
-        setAthletes(originalAthletes);
-        alert('ลบไม่สำเร็จ: ' + (result.error || 'ไม่พบข้อมูลในระบบ'));
+        alert('ไม่สามารถลบรายการได้');
       }
     } catch (err) {
-      setAthletes(originalAthletes);
-      alert('เกิดข้อผิดพลาดในการเชื่อมต่อเพื่อลบ');
+      alert('การเชื่อมต่อล้มเหลว');
     } finally {
-      setIsDeletingId(null);
+      setIsDeleting(false);
+      setDeleteTarget(null);
     }
   };
 
-  const handleEditAthlete = (athlete: Athlete) => {
-    setEditingAthlete(athlete);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  const handlePrint = (order: Order) => {
+    setPrintingOrder(order);
+    setTimeout(() => {
+      window.print();
+    }, 100);
   };
 
-  if (isPrintPreview) {
-    return (
-      <div className="min-h-screen bg-slate-600 py-10 font-['TH_Niramit_AS'] no-print-bg">
-        <div className="fixed top-0 inset-x-0 h-16 bg-slate-900 text-white flex items-center justify-between px-6 z-50 no-print shadow-xl">
-          <button 
-            onClick={() => setIsPrintPreview(false)}
-            className="flex items-center gap-2 hover:bg-white/10 px-4 py-2 rounded-xl transition-all font-bold text-sm"
-          >
-            <ChevronLeft className="w-5 h-5" />
-            <span>กลับสู่ระบบ</span>
-          </button>
-          <div className="text-sm font-bold text-slate-300">ตัวอย่างเอกสาร (จัดระเบียบพื้นที่ใหม่)</div>
-          <button 
-            onClick={() => window.print()}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-xl transition-all font-black shadow-lg shadow-blue-900/20"
-          >
-            <Printer className="w-4 h-4" />
-            <span>สั่งพิมพ์เอกสาร</span>
-          </button>
-        </div>
-
-        <div className="max-w-[210mm] min-h-[285mm] mx-auto bg-white shadow-2xl p-[10mm_15mm_15mm_15mm] formal-document relative flex flex-col print:shadow-none print:m-0 print:h-[290mm]">
-          <div className="text-center mb-4 border-b border-black pb-3">
-            <img src={LOGO_URL} alt="Logo" className="h-24 w-auto mx-auto mb-2" />
-            <h1 className="text-2xl font-black text-black leading-tight mb-0.5">บัญชีรายชื่อนักกีฬาและผู้เข้าร่วมกิจกรรม</h1>
-            <p className="text-lg font-bold text-black uppercase tracking-wide">
-              ประจำปีการศึกษา {new Date().getFullYear() + 543}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2 mb-3 text-[15px] leading-tight text-black font-medium">
-            <div className="space-y-0.5">
-              <p><span className="font-bold">หน่วยงาน:</span> โรงเรียนและสถาบันเครือข่ายกีฬา</p>
-              <p><span className="font-bold">รายการเอกสาร:</span> ทะเบียนคุมข้อมูลนักกีฬารายบุคคล</p>
-            </div>
-            <div className="text-right space-y-0.5">
-              <p><span className="font-bold">วันที่ออกเอกสาร:</span> {new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-              <p><span className="font-bold">จำนวนนักกีฬาทั้งสิ้น:</span> {athletes.length} รายชื่อ</p>
-            </div>
-          </div>
-
-          <div className="flex-grow overflow-hidden">
-            <AthleteTable 
-              athletes={athletes} 
-              onDelete={() => {}} 
-              onEdit={() => {}} 
-              isDeletingId={null}
-              hideActions={true} 
-            />
-          </div>
-
-          <div className="signature-section grid grid-cols-3 gap-6 text-center mt-6">
-            <div className="flex flex-col items-center">
-              <div className="h-10 w-full border-b border-dotted border-black mb-1"></div>
-              <p className="font-bold text-[15px] text-black">(....................................................)</p>
-              <p className="text-[13px] text-black mt-0.5 font-medium">เจ้าหน้าที่ผู้จัดทำข้อมูล</p>
-            </div>
-            <div className="flex flex-col items-center">
-              <div className="h-10 w-full border-b border-dotted border-black mb-1"></div>
-              <p className="font-bold text-[15px] text-black">(....................................................)</p>
-              <p className="text-[13px] text-black mt-0.5 font-medium">อาจารย์ผู้ควบคุมทีม</p>
-            </div>
-            <div className="flex flex-col items-center">
-              <div className="h-10 w-full border-b border-dotted border-black mb-1"></div>
-              <p className="font-bold text-[15px] text-black">(....................................................)</p>
-              <p className="text-[13px] text-black mt-0.5 font-medium">ผู้อำนวยการ/หัวหน้าหน่วยงาน</p>
-            </div>
-          </div>
-          
-          <div className="page-footer flex justify-between text-[11px] text-black font-bold border-t border-black/10 pt-1.5 mt-4">
-             <span>* ข้อมูลดึงจากฐานข้อมูลระบบทะเบียนนักกีฬาออนไลน์</span>
-             <span>หน้า 1 / 1</span>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-slate-50 pb-20 font-['Sarabun'] relative">
-      {athleteToDelete && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm no-print delete-modal-backdrop">
-          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 animate-in zoom-in-95 duration-200">
-            <div className="flex flex-col items-center text-center">
-              <div className="bg-red-50 p-4 rounded-full mb-6">
-                <AlertTriangle className="w-10 h-10 text-red-500" />
-              </div>
-              <h3 className="text-xl font-bold text-slate-800 mb-2">ยืนยันการลบข้อมูล?</h3>
-              <p className="text-slate-500 mb-8 leading-relaxed">
-                คุณต้องการลบข้อมูลของ <span className="font-bold text-slate-800">{athleteToDelete.firstName} {athleteToDelete.lastName}</span> ใช่หรือไม่? <br/>
-                <span className="text-sm text-red-400">การกระทำนี้ไม่สามารถย้อนกลับได้</span>
-              </p>
-              <div className="flex gap-3 w-full">
-                <button
-                  onClick={() => setAthleteToDelete(null)}
-                  className="flex-1 py-3 px-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all active:scale-95"
-                >
-                  ยกเลิก
-                </button>
-                <button
-                  onClick={confirmDelete}
-                  className="flex-1 py-3 px-4 bg-red-500 text-white font-bold rounded-2xl hover:bg-red-600 shadow-lg shadow-red-200 transition-all active:scale-95"
-                >
-                  ยืนยันการลบ
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+    <div className="min-h-screen bg-gradient-to-br from-[#f3e8ff] to-[#e0f2fe] pb-10 font-['Sarabun']">
+      <PrintTemplate order={printingOrder} />
 
-      {showSuccessToast && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 animate-bounce no-print success-toast">
-          <div className="bg-emerald-600 text-white px-8 py-3 rounded-full shadow-2xl flex items-center gap-3 border border-emerald-500/20">
-            <CheckCircle2 className="w-5 h-5" />
-            <span className="font-bold">{toastMessage}</span>
-          </div>
-        </div>
-      )}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none opacity-30 no-print">
+        <div className="absolute top-[-10%] left-[-5%] w-[50%] h-[50%] bg-purple-200 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-5%] w-[50%] h-[50%] bg-blue-100 rounded-full blur-[120px]" />
+      </div>
 
-      <header className="bg-white border-b border-slate-200 no-print mb-8 sticky top-0 z-10 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <img src={LOGO_URL} alt="Logo" className="h-12 w-auto object-contain" />
-            <div className="hidden sm:block">
-              <h1 className="text-xl font-bold text-slate-800">Athlete Registration</h1>
-              <p className="text-slate-400 text-xs font-medium uppercase tracking-wider">ระบบบันทึกรายชื่อนักกีฬา</p>
+      <header className="relative z-10 pt-10 pb-6 no-print">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="flex flex-col items-center mb-10">
+            <div className="flex items-center gap-4 mb-3">
+              <div className="bg-white/90 backdrop-blur-md p-3 rounded-3xl shadow-xl text-purple-600 border border-white/50">
+                <Flower className="w-10 h-10" />
+              </div>
+              <h1 className="text-4xl font-black text-slate-800 tracking-tight">ฟอร์มสั่งซื้อ<span className="text-purple-600">ดอกไม้</span></h1>
             </div>
+            <p className="text-slate-500 font-bold uppercase tracking-[0.4em] text-[11px] bg-white/50 px-4 py-1 rounded-full border border-white/30 backdrop-blur-sm">Flower Ordering System Professional</p>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => fetchAthletes(false)}
-              className="p-2.5 text-slate-500 hover:bg-slate-100 rounded-xl transition-all"
-              title="โหลดข้อมูลใหม่"
+
+          <div className="flex flex-wrap justify-center gap-4 mb-6">
+            <button 
+              onClick={() => { setActiveTab('create'); setEditingOrder(null); }}
+              className={`flex items-center gap-2 px-8 py-3.5 rounded-2xl font-black text-sm shadow-lg transition-all active:scale-95 ${activeTab === 'create' ? 'bg-white text-purple-600 scale-105 border-2 border-purple-100' : 'bg-white text-slate-600 hover:bg-slate-50 border-2 border-transparent'}`}
             >
-              <RefreshCw className={`w-5 h-5 ${isRefreshing ? 'animate-spin text-blue-600' : ''}`} />
+              <PlusCircle className="w-4 h-4" /> สั่งซื้อใหม่
             </button>
-            <button
-              onClick={() => setIsPrintPreview(true)}
-              disabled={athletes.length === 0}
-              className="flex items-center gap-2 bg-slate-800 text-white px-5 py-2.5 rounded-xl hover:bg-black transition-all shadow-md font-bold disabled:opacity-50"
+            <button 
+              onClick={() => setActiveTab('search')}
+              className={`flex items-center gap-2 px-8 py-3.5 rounded-2xl font-black text-sm shadow-lg transition-all active:scale-95 ${activeTab === 'search' ? 'bg-[#38bdf8] text-white scale-105 shadow-blue-200' : 'bg-[#e0f2fe]/60 text-blue-700 hover:bg-[#bae6fd] border-2 border-white/50'}`}
             >
-              <Printer className="w-4 h-4" />
-              <span>พิมพ์รายงาน</span>
+              <Search className="w-4 h-4" /> ค้นหาคำสั่งซื้อ
+            </button>
+            <button 
+              onClick={() => setActiveTab('list')}
+              className={`flex items-center gap-2 px-8 py-3.5 rounded-2xl font-black text-sm shadow-lg transition-all active:scale-95 ${activeTab === 'list' ? 'bg-[#f1f5f9] text-slate-800 scale-105 border-2 border-white' : 'bg-slate-200/50 text-slate-600 hover:bg-slate-200 border-2 border-white/30'}`}
+            >
+              <List className="w-4 h-4" /> รายการทั้งหมด
+            </button>
+            <button 
+              onClick={() => setActiveTab('stats')}
+              className={`flex items-center gap-2 px-8 py-3.5 rounded-2xl font-black text-sm shadow-lg transition-all active:scale-95 ${activeTab === 'stats' ? 'bg-[#f5f3ff] text-purple-600 scale-105 border-2 border-white' : 'bg-purple-100/50 text-purple-500 hover:bg-purple-100 border-2 border-white/30'}`}
+            >
+              <BarChart3 className="w-4 h-4" /> รายงานสถิติ
             </button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4">
+      {showToast && (
+        <div className="fixed top-36 left-1/2 -translate-x-1/2 z-[60] animate-in fade-in slide-in-from-top-6 duration-300 no-print">
+          <div className="bg-white border border-green-100 shadow-2xl px-8 py-4 rounded-3xl flex items-center gap-3 text-green-600 font-black">
+            <CheckCircle2 className="w-6 h-6" /> {toastMsg}
+          </div>
+        </div>
+      )}
+
+      <main className="max-w-6xl mx-auto px-4 py-8 relative z-10 no-print">
         {isLoading ? (
-           <div className="flex flex-col items-center justify-center py-40 gap-4">
-              <Loader2 className="w-12 h-12 text-blue-600 animate-spin" />
-              <p className="font-bold text-slate-400 animate-pulse">กำลังดึงข้อมูลนักกีฬา...</p>
-           </div>
+          <div className="flex flex-col items-center justify-center py-48 gap-4">
+            <div className="relative">
+              <Loader2 className="w-16 h-16 animate-spin text-purple-600" />
+              <Flower className="w-6 h-6 text-purple-400 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+            </div>
+            <p className="font-black text-slate-400 text-lg">กำลังโหลดข้อมูลช่อดอกไม้...</p>
+          </div>
+        ) : fetchError ? (
+          <div className="bg-white/80 backdrop-blur-xl p-16 rounded-[50px] shadow-2xl text-center max-w-lg mx-auto border border-white">
+            <WifiOff className="w-20 h-20 text-slate-200 mx-auto mb-6" />
+            <h3 className="text-2xl font-black text-slate-800 mb-4">{fetchError}</h3>
+            <button onClick={() => fetchOrders()} className="bg-slate-900 text-white px-10 py-4 rounded-3xl font-black shadow-xl transition-all active:scale-95">ลองใหม่อีกครั้ง</button>
+          </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <aside className="no-print lg:col-span-4">
-              <div className="bg-white rounded-3xl p-8 shadow-xl border border-slate-100 sticky top-28">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${editingAthlete ? 'bg-amber-100 text-amber-600' : 'bg-blue-100 text-blue-600'}`}>
-                      {editingAthlete ? <Edit3 /> : <UserPlus />}
-                    </div>
-                    <h2 className="text-xl font-bold">{editingAthlete ? 'แก้ไขข้อมูล' : 'ลงทะเบียนใหม่'}</h2>
-                  </div>
-                  {editingAthlete && (
-                    <button onClick={() => setEditingAthlete(null)} className="text-slate-400 hover:text-slate-600">
-                      <X className="w-5 h-5" />
-                    </button>
-                  )}
-                </div>
-                <RegistrationForm 
+          <div className="fade-in-up">
+            {activeTab === 'create' || editingOrder ? (
+              <div className="bg-white/85 backdrop-blur-2xl p-10 md:p-14 rounded-[50px] shadow-2xl border border-white max-w-3xl mx-auto">
+                <OrderForm 
                   onSubmit={handleFormSubmit} 
                   isSubmitting={isSubmitting} 
-                  editData={editingAthlete || undefined}
-                  onCancel={editingAthlete ? () => setEditingAthlete(null) : undefined}
+                  editData={editingOrder || undefined}
+                  onCancel={() => { setActiveTab('list'); setEditingOrder(null); }}
                 />
               </div>
-            </aside>
+            ) : activeTab === 'stats' ? (
+              <StatisticsDashboard orders={orders} />
+            ) : (
+              <div className="bg-white/85 backdrop-blur-2xl rounded-[50px] shadow-2xl border border-white overflow-hidden">
+                <div className="p-10 border-b border-slate-50 space-y-6">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h2 className="text-2xl font-black text-slate-800">
+                        {activeTab === 'search' ? 'ค้นหาคำสั่งซื้อ' : 'ข้อมูลรายการสั่งซื้อ'}
+                      </h2>
+                      <p className="text-slate-400 font-bold text-sm">จัดการข้อมูลคำสั่งซื้อและสถานะการจัดส่ง</p>
+                    </div>
+                    <button onClick={() => fetchOrders(false)} className="bg-slate-100 p-4 rounded-2xl text-slate-400 hover:text-purple-600 transition-all hover:bg-purple-50">
+                      <RefreshCw className={`w-6 h-6 ${isRefreshing ? 'animate-spin' : ''}`} />
+                    </button>
+                  </div>
 
-            <section className="lg:col-span-8">
-              <div className="bg-white rounded-3xl overflow-hidden shadow-xl border border-slate-100 table-container">
-                <div className="no-print p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                  <div className="flex items-center gap-2">
-                    <User className="text-blue-600 w-5 h-5" />
-                    <h2 className="font-bold text-slate-800">รายชื่อนักกีฬาทั้งหมด</h2>
-                    {isRefreshing && <Loader2 className="w-4 h-4 animate-spin text-blue-400 ml-2" />}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
-                      {athletes.length} Athletes
-                    </span>
-                  </div>
+                  {/* Search Input Area */}
+                  {activeTab === 'search' && (
+                    <div className="relative animate-in slide-in-from-left-4 duration-300">
+                      <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+                      <input 
+                        type="text" 
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        placeholder="ค้นหาด้วยชื่อผู้รับ หรือ เบอร์โทรศัพท์..."
+                        className="w-full pl-16 pr-14 py-5 bg-slate-50 border-2 border-slate-100 rounded-3xl focus:bg-white focus:border-blue-200 outline-none font-bold text-slate-700 transition-all shadow-inner"
+                      />
+                      {searchTerm && (
+                        <button 
+                          onClick={() => setSearchTerm('')}
+                          className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500"
+                        >
+                          <X className="w-5 h-5" />
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
-                <AthleteTable 
-                  athletes={athletes} 
-                  onDelete={(athlete) => setAthleteToDelete(athlete)} 
-                  onEdit={handleEditAthlete}
-                  isDeletingId={isDeletingId}
+                
+                <OrderTable 
+                  orders={filteredOrders} 
+                  onDelete={(o) => setDeleteTarget(o)} 
+                  onEdit={(o) => { setEditingOrder(o); setActiveTab('create'); }} 
+                  onView={(o) => setViewingOrder(o)}
+                  onPrint={handlePrint}
+                  isDeletingId={isDeleting ? deleteTarget?.id || null : null}
                 />
               </div>
-            </section>
+            )}
           </div>
         )}
       </main>
+
+      <OrderDetailsModal 
+        isOpen={!!viewingOrder} 
+        order={viewingOrder} 
+        onClose={() => setViewingOrder(null)} 
+      />
+
+      <DeleteModal 
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDeleteConfirm}
+        isDeleting={isDeleting}
+        title="ยกเลิกคำสั่งซื้อ?"
+        description={`คุณแน่ใจหรือไม่ว่าต้องการยกเลิกคำสั่งซื้อของคุณ ${deleteTarget?.recipientName}? ข้อมูลนี้จะถูกลบถาวร`}
+      />
     </div>
   );
 };

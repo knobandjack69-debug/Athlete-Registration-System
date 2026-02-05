@@ -1,22 +1,23 @@
+
 /**
- * BACKEND FOR ATHLETE REGISTRATION SYSTEM
- * Optimized v5.1 - Bug Fix: Precision ID Matching
+ * BACKEND FOR FLOWER ORDERING SYSTEM
+ * Updated for Better Image Display Compatibility
  */
 
-const SPREADSHEET_ID = '1S5hYDsz8fHOHPe0MmpC7G2bFRSHu3VKkW1WPVhZ2WH0'; 
+const SPREADSHEET_ID = '1EaonkTI2K0Q1TS9vOZr3emVz2IRlwvRsG1PC_6tQLm0'; 
 const FOLDER_ID = '1Y6h7stTh1MZOxmoQGdRUtXB0tLtLBMhb'; 
-const SHEET_NAME = 'Athletes';
+const SHEET_NAME = 'FlowerOrders';
 
 function doGet(e) {
   const action = e.parameter.action;
   try {
-    if (action === 'getAthletes') {
-      return createJsonResponse(getAthletes());
+    if (action === 'getOrders') {
+      return createJsonResponse(getOrders());
     }
+    return HtmlService.createHtmlOutput('<h1>Flower Ordering API Active</h1>');
   } catch (err) {
     return createJsonResponse({ success: false, error: err.toString() });
   }
-  return HtmlService.createHtmlOutput('<h1>Service is running (v5.1 Optimized)</h1>');
 }
 
 function doPost(e) {
@@ -25,17 +26,17 @@ function doPost(e) {
     const action = requestData.action;
     let result;
 
-    if (action === 'registerAthlete') {
-      result = registerAthlete(requestData.data);
-    } else if (action === 'updateAthlete') {
-      result = updateAthlete(requestData.id, requestData.data);
-    } else if (action === 'deleteAthlete') {
-      result = deleteAthlete(requestData.id);
+    if (action === 'createOrder') {
+      result = createOrder(requestData.data);
+    } else if (action === 'updateOrder') {
+      result = updateOrder(requestData.id, requestData.data);
+    } else if (action === 'deleteOrder') {
+      result = deleteOrder(requestData.id);
     }
 
-    return createJsonResponse(result || { success: false, error: 'Unknown action: ' + action });
+    return createJsonResponse(result || { success: false, error: 'Unknown action' });
   } catch (err) {
-    return createJsonResponse({ success: false, error: 'Post Error: ' + err.toString() });
+    return createJsonResponse({ success: false, error: err.toString() });
   }
 }
 
@@ -49,82 +50,73 @@ function getOrCreateSheet() {
   let sheet = ss.getSheetByName(SHEET_NAME);
   if (!sheet) {
     sheet = ss.insertSheet(SHEET_NAME);
-    sheet.appendRow(['ID', 'วันที่ลงทะเบียน', 'ชื่อ', 'นามสกุล', 'ระดับชั้น', 'เลขที่', 'URL รูปภาพ']);
-    sheet.getRange(1, 1, 1, 7).setFontWeight('bold').setBackground('#E2E8F0');
+    sheet.appendRow(['OrderID', 'Timestamp', 'RecipientName', 'Phone', 'Details', 'CardMessage', 'Address', 'DeliveryTime', 'PhotoURL']);
+    sheet.getRange(1, 1, 1, 9).setFontWeight('bold').setBackground('#7c3aed').setFontColor('#ffffff');
     sheet.setFrozenRows(1);
   }
   return sheet;
 }
 
-function registerAthlete(data) {
+function createOrder(data) {
   const sheet = getOrCreateSheet();
-  let photoUrl = data.photoUrl;
-  
-  if (photoUrl && photoUrl.startsWith('data:')) {
-    photoUrl = saveImageToDrive(photoUrl, data.firstName + '_' + data.lastName);
+  let photoUrl = "";
+  if (data.photoUrl && data.photoUrl.startsWith('data:')) {
+    photoUrl = saveImageToDrive(data.photoUrl, data.recipientName);
+  } else {
+    photoUrl = data.photoUrl || "";
   }
   
-  const id = Utilities.getUuid().split('-')[0];
+  const id = 'ORD-' + Utilities.getUuid().split('-')[0].toUpperCase();
   const timestamp = Utilities.formatDate(new Date(), "GMT+7", "dd/MM/yyyy HH:mm:ss");
   
-  sheet.appendRow([id, timestamp, data.firstName, data.lastName, data.level, data.number, photoUrl]);
-  return { success: true, id: id };
+  sheet.appendRow([
+    id, 
+    timestamp, 
+    data.recipientName, 
+    data.phone, 
+    data.details, 
+    data.cardMessage, 
+    data.address, 
+    data.deliveryTime, 
+    photoUrl
+  ]);
+  
+  return { success: true, id: id, photoUrl: photoUrl };
 }
 
-function updateAthlete(id, data) {
+function updateOrder(id, data) {
   const sheet = getOrCreateSheet();
   const values = sheet.getDataRange().getValues();
   const targetId = String(id).trim();
-  
   const rowIndex = values.findIndex(row => String(row[0]).trim() === targetId);
-  
   if (rowIndex !== -1) {
     let photoUrl = data.photoUrl;
     if (photoUrl && photoUrl.startsWith('data:')) {
-      photoUrl = saveImageToDrive(photoUrl, data.firstName);
+      photoUrl = saveImageToDrive(photoUrl, data.recipientName);
     }
-    
-    sheet.getRange(rowIndex + 1, 3, 1, 5).setValues([[
-      data.firstName, 
-      data.lastName, 
-      data.level, 
-      data.number, 
+    sheet.getRange(rowIndex + 1, 3, 1, 7).setValues([[
+      data.recipientName, 
+      data.phone, 
+      data.details, 
+      data.cardMessage, 
+      data.address, 
+      data.deliveryTime, 
       photoUrl
     ]]);
-    return { success: true };
+    return { success: true, photoUrl: photoUrl };
   }
-  
-  return { success: false, error: 'ไม่พบ ID: ' + targetId };
+  return { success: false, error: 'Order not found' };
 }
 
-function deleteAthlete(id) {
-  if (!id) return { success: false, error: 'ID is missing' };
-  
+function deleteOrder(id) {
   const sheet = getOrCreateSheet();
-  const range = sheet.getDataRange();
-  const values = range.getValues();
-  const targetId = String(id).trim();
-  
-  console.log('Attempting to delete ID: ' + targetId);
-  
-  // ปรับปรุงการเปรียบเทียบให้รองรับ ID ที่เป็นตัวเลขใน Sheet
-  const rowIndex = values.findIndex((row, idx) => {
-    const rowId = String(row[0]).trim();
-    if (rowId === targetId) {
-      console.log('Found ID ' + targetId + ' at Row ' + (idx + 1));
-      return true;
-    }
-    return false;
-  });
-  
+  const values = sheet.getDataRange().getValues();
+  const rowIndex = values.findIndex(row => String(row[0]).trim() === String(id).trim());
   if (rowIndex !== -1) {
     sheet.deleteRow(rowIndex + 1);
-    console.log('Successfully deleted row ' + (rowIndex + 1));
-    return { success: true, message: 'ลบข้อมูลสำเร็จ' };
+    return { success: true };
   }
-  
-  console.log('ID ' + targetId + ' not found in sheet.');
-  return { success: false, error: 'ไม่พบข้อมูลในระบบ (ID: ' + targetId + ')' };
+  return { success: false, error: 'Order not found' };
 }
 
 function saveImageToDrive(base64Data, name) {
@@ -133,28 +125,29 @@ function saveImageToDrive(base64Data, name) {
     const parts = base64Data.split(',');
     const contentType = parts[0].split(';')[0].split(':')[1];
     const bytes = Utilities.base64Decode(parts[1]);
-    const blob = Utilities.newBlob(bytes, contentType, `athlete_${name}_${Date.now()}.jpg`);
-    const file = folder.createFile(blob);
+    const file = folder.createFile(Utilities.newBlob(bytes, contentType, `flower_${name}_${Date.now()}.jpg`));
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-    return `https://drive.google.com/uc?export=view&id=${file.getId()}`;
-  } catch (e) {
-    return "";
+    
+    // ใช้ format lh3.googleusercontent.com/d/ID ซึ่งดีกว่า uc?export=view สำหรับแสดงผลใน <img>
+    return `https://lh3.googleusercontent.com/d/${file.getId()}`;
+  } catch (e) { 
+    return ""; 
   }
 }
 
-function getAthletes() {
+function getOrders() {
   const sheet = getOrCreateSheet();
   const values = sheet.getDataRange().getValues();
   if (values.length <= 1) return [];
-  
-  const data = values.slice(1).map(r => ({
-    id: String(r[0]), // บังคับเป็น String
-    firstName: r[2],
-    lastName: r[3],
-    level: r[4],
-    number: r[5],
-    photoUrl: r[6]
-  }));
-  
-  return data.reverse();
+  return values.slice(1).map(r => ({
+    id: String(r[0]),
+    timestamp: String(r[1]),
+    recipientName: String(r[2]),
+    phone: String(r[3]),
+    details: String(r[4]),
+    cardMessage: String(r[5]),
+    address: String(r[6]),
+    deliveryTime: String(r[7]),
+    photoUrl: String(r[8])
+  })).reverse();
 }

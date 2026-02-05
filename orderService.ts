@@ -1,47 +1,42 @@
 
-import { Athlete, AthleteFormData } from './types';
+import { Order, OrderFormData } from './types';
 
 /**
- * ลิงก์ Web App จาก Google Apps Script
+ * ลิงก์ Web App จาก Google Apps Script (อัปเดตล่าสุด)
  */
 const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyaTxayXjk3T4Lu5hlD0D9j86vPwfDJKZNOTTTNEOrPv-myEbrBJTpJ1CdwwZAJ-H8n/exec';
 
-export const athleteService = {
+export const orderService = {
   /**
-   * ดึงข้อมูลนักกีฬาทั้งหมด
+   * ดึงข้อมูลคำสั่งซื้อทั้งหมด
    */
-  async getAthletes(): Promise<Athlete[]> {
+  async getOrders(): Promise<Order[]> {
     try {
-      const url = `${WEB_APP_URL}?action=getAthletes&_=${Date.now()}`;
+      const url = `${WEB_APP_URL}?action=getOrders&_=${Date.now()}`;
       const response = await fetch(url, {
         method: 'GET',
         redirect: 'follow',
         cache: 'no-store'
       });
-      
-      if (!response.ok) throw new Error('ไม่สามารถดึงข้อมูลได้');
-      
+      if (!response.ok) throw new Error('ไม่สามารถดึงข้อมูลคำสั่งซื้อได้');
       const data = await response.json();
       return Array.isArray(data) ? data : [];
     } catch (error) {
-      console.error('❌ Error fetching athletes:', error);
+      console.error('❌ Error fetching orders:', error);
       throw error;
     }
   },
 
   /**
-   * ลงทะเบียนนักกีฬาใหม่
+   * สร้างคำสั่งซื้อใหม่
    */
-  async registerAthlete(data: AthleteFormData) {
+  async createOrder(data: OrderFormData) {
     try {
       const response = await fetch(WEB_APP_URL, {
         method: 'POST',
         redirect: 'follow',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ 
-          action: 'registerAthlete', 
-          data 
-        }),
+        body: JSON.stringify({ action: 'createOrder', data }),
       });
       return await response.json();
     } catch (error) {
@@ -50,19 +45,15 @@ export const athleteService = {
   },
 
   /**
-   * แก้ไขข้อมูลนักกีฬา
+   * แก้ไขคำสั่งซื้อ
    */
-  async updateAthlete(id: string, data: AthleteFormData) {
+  async updateOrder(id: string, data: OrderFormData) {
     try {
       const response = await fetch(WEB_APP_URL, {
         method: 'POST',
         redirect: 'follow',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ 
-          action: 'updateAthlete', 
-          id, 
-          data 
-        }),
+        body: JSON.stringify({ action: 'updateOrder', id, data }),
       });
       return await response.json();
     } catch (error) {
@@ -71,18 +62,15 @@ export const athleteService = {
   },
 
   /**
-   * ลบข้อมูลนักกีฬา
+   * ลบคำสั่งซื้อ
    */
-  async deleteAthlete(id: string) {
+  async deleteOrder(id: string) {
     try {
       const response = await fetch(WEB_APP_URL, {
         method: 'POST',
         redirect: 'follow',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ 
-          action: 'deleteAthlete', 
-          id 
-        }),
+        body: JSON.stringify({ action: 'deleteOrder', id }),
       });
       return await response.json();
     } catch (error) {
