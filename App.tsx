@@ -5,21 +5,21 @@ import {
   PlusCircle, 
   Search, 
   List, 
-  BarChart3, 
-  Loader2, 
+  ChartBarBig, 
+  LoaderCircle, 
   RefreshCw, 
-  CheckCircle2, 
+  CircleCheckBig, 
   WifiOff,
   X
 } from 'lucide-react';
-import { Order, OrderFormData } from './types';
-import OrderForm from './components/OrderForm';
-import OrderTable from './components/OrderTable';
-import OrderDetailsModal from './components/OrderDetailsModal';
-import PrintTemplate from './components/PrintTemplate';
-import StatisticsDashboard from './components/StatisticsDashboard';
-import DeleteModal from './components/DeleteModal';
-import { orderService } from './orderService';
+import { Order, OrderFormData } from './types.ts';
+import OrderForm from './components/OrderForm.tsx';
+import OrderTable from './components/OrderTable.tsx';
+import OrderDetailsModal from './components/OrderDetailsModal.tsx';
+import PrintTemplate from './components/PrintTemplate.tsx';
+import StatisticsDashboard from './components/StatisticsDashboard.tsx';
+import DeleteModal from './components/DeleteModal.tsx';
+import { orderService } from './orderService.ts';
 
 const App: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -127,7 +127,7 @@ const App: React.FC = () => {
     setPrintingOrder(order);
     setTimeout(() => {
       window.print();
-    }, 100);
+    }, 150);
   };
 
   return (
@@ -174,7 +174,7 @@ const App: React.FC = () => {
               onClick={() => setActiveTab('stats')}
               className={`flex items-center gap-2 px-8 py-3.5 rounded-2xl font-black text-sm shadow-lg transition-all active:scale-95 ${activeTab === 'stats' ? 'bg-[#f5f3ff] text-purple-600 scale-105 border-2 border-white' : 'bg-purple-100/50 text-purple-500 hover:bg-purple-100 border-2 border-white/30'}`}
             >
-              <BarChart3 className="w-4 h-4" /> รายงานสถิติ
+              <ChartBarBig className="w-4 h-4" /> รายงานสถิติ
             </button>
           </div>
         </div>
@@ -183,7 +183,7 @@ const App: React.FC = () => {
       {showToast && (
         <div className="fixed top-36 left-1/2 -translate-x-1/2 z-[60] animate-in fade-in slide-in-from-top-6 duration-300 no-print">
           <div className="bg-white border border-green-100 shadow-2xl px-8 py-4 rounded-3xl flex items-center gap-3 text-green-600 font-black">
-            <CheckCircle2 className="w-6 h-6" /> {toastMsg}
+            <CircleCheckBig className="w-6 h-6" /> {toastMsg}
           </div>
         </div>
       )}
@@ -192,7 +192,7 @@ const App: React.FC = () => {
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-48 gap-4">
             <div className="relative">
-              <Loader2 className="w-16 h-16 animate-spin text-purple-600" />
+              <LoaderCircle className="w-16 h-16 animate-spin text-purple-600" />
               <Flower className="w-6 h-6 text-purple-400 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
             </div>
             <p className="font-black text-slate-400 text-lg">กำลังโหลดข้อมูลช่อดอกไม้...</p>
