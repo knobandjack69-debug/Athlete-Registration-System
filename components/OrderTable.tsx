@@ -10,7 +10,9 @@ import {
   Clock, 
   Image,
   User,
-  Phone
+  Phone,
+  CheckSquare,
+  Square
 } from 'lucide-react';
 import { Order } from '../types.ts';
 
@@ -22,9 +24,23 @@ interface Props {
   onPrint: (order: Order) => void;
   isDeletingId: string | null;
   hideActions?: boolean;
+  selectionMode?: boolean;
+  selectedIds?: Set<string>;
+  onToggleOrder?: (id: string) => void;
 }
 
-const OrderTable: React.FC<Props> = ({ orders, onDelete, onEdit, onView, onPrint, isDeletingId, hideActions = false }) => {
+const OrderTable: React.FC<Props> = ({ 
+  orders, 
+  onDelete, 
+  onEdit, 
+  onView, 
+  onPrint, 
+  isDeletingId, 
+  hideActions = false,
+  selectionMode = false,
+  selectedIds = new Set(),
+  onToggleOrder
+}) => {
   const getDirectImageUrl = (url: string) => {
     if (!url) return '';
     if (url.startsWith('data:')) return url;
@@ -68,12 +84,15 @@ const OrderTable: React.FC<Props> = ({ orders, onDelete, onEdit, onView, onPrint
       <table className="w-full text-left border-collapse min-w-[950px]">
         <thead>
           <tr className="bg-slate-50/60 border-b border-slate-100">
+            {selectionMode && (
+              <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] w-16 text-center">เลือก</th>
+            )}
             <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] w-28 text-center">รหัสสั่งซื้อ</th>
             <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">ชื่อผู้รับ</th>
             <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] w-48">เบอร์โทรศัพท์</th>
             <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">วันที่จัดส่ง</th>
             <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] text-center w-24">รูปภาพ</th>
-            {!hideActions && (
+            {!hideActions && !selectionMode && (
               <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">การจัดการ</th>
             )}
           </tr>
@@ -81,9 +100,25 @@ const OrderTable: React.FC<Props> = ({ orders, onDelete, onEdit, onView, onPrint
         <tbody className="divide-y divide-slate-50">
           {orders.map((order) => {
             const displayImageUrl = getDirectImageUrl(order.photoUrl);
+            const isSelected = selectedIds.has(order.id);
             
             return (
-              <tr key={order.id} className="hover:bg-purple-50/20 transition-all group">
+              <tr 
+                key={order.id} 
+                className={`transition-all group ${selectionMode ? 'cursor-pointer' : ''} ${isSelected ? 'bg-rose-50/50' : 'hover:bg-purple-50/20'}`}
+                onClick={() => selectionMode && onToggleOrder?.(order.id)}
+              >
+                {selectionMode && (
+                  <td className="px-8 py-5 text-center">
+                    <div className="flex justify-center">
+                      {isSelected ? (
+                        <CheckSquare className="w-6 h-6 text-rose-500 fill-rose-50" />
+                      ) : (
+                        <Square className="w-6 h-6 text-slate-200" />
+                      )}
+                    </div>
+                  </td>
+                )}
                 <td className="px-8 py-5 text-center">
                   <span className="text-[10px] font-black bg-slate-800 text-white px-3 py-1.5 rounded-xl shadow-sm tracking-tighter">#{order.id.slice(-6)}</span>
                 </td>
@@ -132,23 +167,20 @@ const OrderTable: React.FC<Props> = ({ orders, onDelete, onEdit, onView, onPrint
                     )}
                   </div>
                 </td>
-                {!hideActions && (
+                {!hideActions && !selectionMode && (
                   <td className="px-8 py-5">
                     <div className="flex items-center justify-center gap-2.5">
-                      <button onClick={() => onView(order)} title="ดูรายละเอียด" className="p-3 bg-[#38bdf8] text-white rounded-2xl shadow-lg shadow-blue-100 hover:shadow-blue-200 active:scale-90 transition-all hover:bg-blue-500">
+                      <button onClick={(e) => { e.stopPropagation(); onView(order); }} title="ดูรายละเอียด" className="p-3 bg-[#38bdf8] text-white rounded-2xl shadow-lg shadow-blue-100 hover:shadow-blue-200 active:scale-90 transition-all hover:bg-blue-500">
                         <Eye className="w-4.5 h-4.5" />
                       </button>
-                      <button onClick={() => onPrint(order)} title="ส่งออก PDF" className="p-3 bg-[#a855f7] text-white rounded-2xl shadow-lg shadow-purple-100 hover:shadow-purple-200 active:scale-90 transition-all hover:bg-purple-600">
-                        <FileText className="w-4.5 h-4.5" />
-                      </button>
-                      <button onClick={() => onPrint(order)} title="พิมพ์ใบสั่งซื้อ" className="p-3 bg-[#22c55e] text-white rounded-2xl shadow-lg shadow-green-100 hover:shadow-green-200 active:scale-90 transition-all hover:bg-green-600">
+                      <button onClick={(e) => { e.stopPropagation(); onPrint(order); }} title="พิมพ์ใบสั่งซื้อ" className="p-3 bg-[#22c55e] text-white rounded-2xl shadow-lg shadow-green-100 hover:shadow-green-200 active:scale-90 transition-all hover:bg-green-600">
                         <Printer className="w-4.5 h-4.5" />
                       </button>
-                      <button onClick={() => onEdit(order)} title="แก้ไขคำสั่งซื้อ" className="p-3 bg-[#eab308] text-white rounded-2xl shadow-lg shadow-yellow-100 hover:shadow-yellow-200 active:scale-90 transition-all hover:bg-yellow-600">
+                      <button onClick={(e) => { e.stopPropagation(); onEdit(order); }} title="แก้ไขคำสั่งซื้อ" className="p-3 bg-[#eab308] text-white rounded-2xl shadow-lg shadow-yellow-100 hover:shadow-yellow-200 active:scale-90 transition-all hover:bg-yellow-600">
                         <Pencil className="w-4.5 h-4.5" />
                       </button>
                       <div className="w-px h-8 bg-slate-100 mx-1" />
-                      <button onClick={() => onDelete(order)} disabled={isDeletingId === order.id} className="p-3 text-red-300 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all disabled:opacity-30">
+                      <button onClick={(e) => { e.stopPropagation(); onDelete(order); }} disabled={isDeletingId === order.id} className="p-3 text-red-300 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all disabled:opacity-30">
                         {isDeletingId === order.id ? <LoaderCircle className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
                       </button>
                     </div>
