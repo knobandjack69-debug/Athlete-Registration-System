@@ -14,7 +14,8 @@ import {
   X,
   ChevronLeft
 } from 'lucide-react';
-import { OrderFormData, Order } from '../types';
+// Fix: Use .ts extension in the import to be consistent with other files
+import { OrderFormData, Order } from '../types.ts';
 import { GoogleGenAI } from "@google/genai";
 
 interface Props {
@@ -98,11 +99,14 @@ const OrderForm: React.FC<Props> = ({ onSubmit, isSubmitting, editData, onCancel
     
     setIsGenerating(true);
     try {
+      // Fix: Follow Google GenAI SDK guidelines for initialization and content generation
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: `ในบทบาทของนักเขียนคำคมและกวี ช่วยเขียนข้อความสั้นๆ ซึ้งๆ สำหรับใส่ในการ์ดอวยพรที่มาพร้อมกับช่อดอกไม้ที่มีรายละเอียดดังนี้: "${formData.details}" ขอแบบกระชับ 1-2 ประโยคสำหรับภาษาไทยที่ดูอบอุ่นและเป็นกันเอง`,
       });
+      
+      // Fix: Access .text property instead of calling .text() as per GenerateContentResponse definition
       const text = response.text;
       if (text) {
         setFormData(prev => ({ ...prev, cardMessage: text.trim().replace(/["']/g, '') }));

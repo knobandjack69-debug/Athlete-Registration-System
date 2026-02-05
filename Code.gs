@@ -1,6 +1,12 @@
 
 /**
- * BACKEND FOR FLOWER ORDERING SYSTEM (Refactored)
+ * BACKEND FOR FLOWER ORDERING SYSTEM (Unified Version)
+ * How to setup:
+ * 1. Open your Google Sheet.
+ * 2. Extensions > Apps Script.
+ * 3. Copy-Paste this code.
+ * 4. Update SPREADSHEET_ID and FOLDER_ID below.
+ * 5. Deploy > New Deployment > Web App > Access: "Anyone".
  */
 
 const SPREADSHEET_ID = '1EaonkTI2K0Q1TS9vOZr3emVz2IRlwvRsG1PC_6tQLm0'; 
@@ -13,10 +19,10 @@ function doGet(e) {
     if (action === 'getOrders') {
       return createJsonResponse(getOrders());
     }
+    return HtmlService.createHtmlOutput('<h1>Flower Ordering API is active</h1>');
   } catch (err) {
     return createJsonResponse({ success: false, error: err.toString() });
   }
-  return HtmlService.createHtmlOutput('<h1>Flower Ordering API is active</h1>');
 }
 
 function doPost(e) {
@@ -50,7 +56,7 @@ function getOrCreateSheet() {
   if (!sheet) {
     sheet = ss.insertSheet(SHEET_NAME);
     sheet.appendRow(['OrderID', 'Timestamp', 'RecipientName', 'Phone', 'Details', 'CardMessage', 'Address', 'DeliveryTime', 'PhotoURL']);
-    sheet.getRange(1, 1, 1, 9).setFontWeight('bold').setBackground('#7c3aed').setFontColor('#ffffff');
+    sheet.getRange(1, 1, 1, 9).setFontWeight('bold').setBackground('#db2777').setFontColor('#ffffff');
     sheet.setFrozenRows(1);
   }
   return sheet;
@@ -95,7 +101,6 @@ function updateOrder(id, data) {
       photoUrl = saveImageToDrive(photoUrl, data.recipientName);
     }
     
-    // อัปเดตข้อมูล (คอลัมน์ที่ 3 เป็นต้นไป)
     sheet.getRange(rowIndex + 1, 3, 1, 7).setValues([[
       data.recipientName, 
       data.phone, 
@@ -129,10 +134,9 @@ function saveImageToDrive(base64Data, name) {
     const parts = base64Data.split(',');
     const contentType = parts[0].split(';')[0].split(':')[1];
     const bytes = Utilities.base64Decode(parts[1]);
-    const blob = Utilities.newBlob(bytes, contentType, `flower_order_${name}_${Date.now()}.jpg`);
+    const blob = Utilities.newBlob(bytes, contentType, `flower_${name}_${Date.now()}.jpg`);
     const file = folder.createFile(blob);
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-    // ใช้ Direct link format
     return `https://lh3.googleusercontent.com/d/${file.getId()}`;
   } catch (e) {
     return "";

@@ -1,9 +1,7 @@
 
 import { Order, OrderFormData } from './types.ts';
 
-/**
- * ลิงก์ Web App จาก Google Apps Script (อัปเดตล่าสุด)
- */
+// ตรวจสอบให้แน่ใจว่า URL นี้ถูก Deploy เป็น Web App (Anyone)
 const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyaTxayXjk3T4Lu5hlD0D9j86vPwfDJKZNOTTTNEOrPv-myEbrBJTpJ1CdwwZAJ-H8n/exec';
 
 export const orderService = {
@@ -18,11 +16,14 @@ export const orderService = {
         redirect: 'follow',
         cache: 'no-store'
       });
-      if (!response.ok) throw new Error('ไม่สามารถดึงข้อมูลคำสั่งซื้อได้');
+      
+      if (!response.ok) throw new Error('Network response was not ok');
+      
       const data = await response.json();
+      // ตรวจสอบว่าข้อมูลที่ได้เป็น Array หรือไม่
       return Array.isArray(data) ? data : [];
     } catch (error) {
-      console.error('❌ Error fetching orders:', error);
+      console.error('API Error (getOrders):', error);
       throw error;
     }
   },
@@ -40,6 +41,7 @@ export const orderService = {
       });
       return await response.json();
     } catch (error) {
+      console.error('API Error (createOrder):', error);
       return { success: false, error: String(error) };
     }
   },
@@ -57,6 +59,7 @@ export const orderService = {
       });
       return await response.json();
     } catch (error) {
+      console.error('API Error (updateOrder):', error);
       return { success: false, error: String(error) };
     }
   },
@@ -74,6 +77,7 @@ export const orderService = {
       });
       return await response.json();
     } catch (error) {
+      console.error('API Error (deleteOrder):', error);
       return { success: false, error: String(error) };
     }
   }

@@ -13,12 +13,7 @@ export interface Order {
 
 export type OrderFormData = Omit<Order, 'id' | 'timestamp'>;
 
-/**
- * Fix: Added Athlete and AthleteFormData to resolve import errors in:
- * - components/RegistrationForm.tsx
- * - components/AthleteTable.tsx
- * - athleteService.ts
- */
+// Fix: Add Athlete and AthleteFormData types which were missing but referenced by athlete registration components
 export interface Athlete {
   id: string;
   firstName: string;

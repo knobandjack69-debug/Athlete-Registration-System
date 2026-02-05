@@ -1,80 +1,86 @@
 
 import React from 'react';
-import { Trash2, Edit2, User, ImageIcon } from 'lucide-react';
+import { Trash2, Edit2, User, ImageIcon, Printer } from 'lucide-react';
 import { Athlete } from '../types.ts';
 
 interface Props {
   athletes: Athlete[];
   onDelete: (athlete: Athlete) => void;
   onEdit: (athlete: Athlete) => void;
+  onPrint: (athlete: Athlete) => void;
   isDeletingId: string | null;
   hideActions?: boolean;
 }
 
-const AthleteTable: React.FC<Props> = ({ athletes, onDelete, onEdit, isDeletingId, hideActions = false }) => {
+const AthleteTable: React.FC<Props> = ({ athletes, onDelete, onEdit, onPrint, isDeletingId, hideActions = false }) => {
   if (athletes.length === 0) {
     return (
-      <div className="py-20 text-center text-slate-400">
-        <ImageIcon className="w-12 h-12 mx-auto mb-2 opacity-20" />
-        <p>ยังไม่พบข้อมูลนักกีฬาในระบบ</p>
+      <div className="py-24 text-center">
+        <div className="bg-slate-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+          <ImageIcon className="w-8 h-8 text-slate-200" />
+        </div>
+        <p className="text-slate-400 font-black text-lg">ไม่พบรายชื่อนักกีฬาในขณะนี้</p>
+        <p className="text-slate-300 text-sm mt-1">เริ่มลงทะเบียนใหม่ได้ที่เมนู "ลงทะเบียนใหม่"</p>
       </div>
     );
   }
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-left border-collapse">
+      <table className="w-full text-left border-collapse min-w-[800px]">
         <thead>
-          <tr className="bg-slate-50/50 border-b border-slate-100">
-            <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center w-16">No.</th>
-            <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center w-20">รูปภาพ</th>
-            <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">ชื่อ - นามสกุล</th>
-            <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest w-32">ชั้น/เลขที่</th>
+          <tr className="bg-slate-50/80 border-b border-slate-100">
+            <th className="px-8 py-4 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center w-20">ลำดับ</th>
+            <th className="px-8 py-4 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center w-24">รูปถ่าย</th>
+            <th className="px-8 py-4 text-[11px] font-black text-slate-400 uppercase tracking-widest">ชื่อ-นามสกุล</th>
+            <th className="px-8 py-4 text-[11px] font-black text-slate-400 uppercase tracking-widest w-32">ระดับชั้น</th>
+            <th className="px-8 py-4 text-[11px] font-black text-slate-400 uppercase tracking-widest w-24 text-center">เลขที่</th>
             {!hideActions && (
-              <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center w-32">จัดการ</th>
+              <th className="px-8 py-4 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center">เครื่องมือ</th>
             )}
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-50">
           {athletes.map((athlete, index) => (
-            <tr key={athlete.id} className="hover:bg-slate-50/50 transition-colors group">
-              <td className="px-6 py-4 text-center font-medium text-slate-400 text-sm">
-                {index + 1}
+            <tr key={athlete.id} className="hover:bg-blue-50/30 transition-colors group">
+              <td className="px-8 py-5 text-center">
+                <span className="font-bold text-slate-300">{(index + 1).toString().padStart(2, '0')}</span>
               </td>
-              <td className="px-6 py-4">
-                <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 overflow-hidden mx-auto shadow-sm">
+              <td className="px-8 py-5">
+                <div className="w-12 h-12 rounded-2xl overflow-hidden border-2 border-white shadow-md mx-auto group-hover:scale-110 transition-transform bg-slate-50">
                   {athlete.photoUrl ? (
-                    <img src={athlete.photoUrl} alt="Athlete" className="w-full h-full object-cover" onError={(e) => (e.currentTarget.src = 'https://ui-avatars.com/api/?name=Ath&background=eee')} />
+                    <img 
+                      src={athlete.photoUrl} 
+                      className="w-full h-full object-cover" 
+                      alt="Athlete"
+                    />
                   ) : (
-                    <User className="w-full h-full p-2 text-slate-300" />
+                    <div className="w-full h-full flex items-center justify-center text-slate-200"><User className="w-6 h-6" /></div>
                   )}
                 </div>
               </td>
-              <td className="px-6 py-4">
-                <div className="font-bold text-slate-800">{athlete.firstName} {athlete.lastName}</div>
-                <div className="text-[9px] text-slate-400 uppercase font-mono tracking-tighter">ID: {athlete.id}</div>
+              <td className="px-8 py-5">
+                <div className="font-black text-slate-800">{athlete.firstName} {athlete.lastName}</div>
+                <div className="text-[10px] font-mono text-slate-400">ID: {athlete.id.toUpperCase()}</div>
               </td>
-              <td className="px-6 py-4">
-                <div className="flex flex-col gap-1">
-                  <span className="text-[10px] font-bold bg-blue-50 text-blue-600 px-2 py-0.5 rounded w-fit">ชั้น {athlete.level}</span>
-                  <span className="text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded w-fit">เลขที่ {athlete.number}</span>
-                </div>
+              <td className="px-8 py-5">
+                <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-xl text-xs font-black">ชั้น {athlete.level}</span>
+              </td>
+              <td className="px-8 py-5 text-center">
+                <span className="text-blue-600 font-black">{athlete.number}</span>
               </td>
               {!hideActions && (
-                <td className="px-6 py-4">
+                <td className="px-8 py-5">
                   <div className="flex items-center justify-center gap-2">
-                    <button 
-                      onClick={() => onEdit(athlete)}
-                      className="p-2 text-amber-500 hover:bg-amber-50 rounded-lg transition-colors"
-                    >
-                      <Edit2 className="w-4 h-4" />
+                    <button onClick={() => onPrint(athlete)} title="พิมพ์บัตร" className="p-2.5 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-900 hover:text-white transition-all active:scale-90">
+                      <Printer className="w-4.5 h-4.5" />
                     </button>
-                    <button 
-                      onClick={() => onDelete(athlete)}
-                      disabled={isDeletingId === athlete.id}
-                      className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-30"
-                    >
-                      {isDeletingId === athlete.id ? <div className="w-4 h-4 border-2 border-red-400 border-t-transparent animate-spin rounded-full" /> : <Trash2 className="w-4 h-4" />}
+                    <button onClick={() => onEdit(athlete)} title="แก้ไข" className="p-2.5 bg-slate-100 text-slate-600 rounded-xl hover:bg-amber-500 hover:text-white transition-all active:scale-90">
+                      <Edit2 className="w-4.5 h-4.5" />
+                    </button>
+                    <div className="w-px h-6 bg-slate-100 mx-1" />
+                    <button onClick={() => onDelete(athlete)} disabled={isDeletingId === athlete.id} className="p-2.5 text-red-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all disabled:opacity-30">
+                      {isDeletingId === athlete.id ? <div className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin" /> : <Trash2 className="w-4.5 h-4.5" />}
                     </button>
                   </div>
                 </td>
