@@ -20,48 +20,51 @@ const PrintTemplate: React.FC<Props> = ({ order }) => {
   };
 
   return (
-    <div id="printable-area" className="p-10 text-slate-900 bg-white min-h-screen font-['Sarabun']">
-      <div className="border-[6px] border-slate-900 p-10 rounded-lg relative overflow-hidden">
+    <div id="printable-area" className="p-6 text-slate-900 bg-white min-h-screen font-['Sarabun']">
+      <div className="border-[4px] border-slate-900 p-6 rounded-lg relative overflow-hidden">
         {/* Header Decoration */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-slate-900 rotate-45 translate-x-16 -translate-y-16"></div>
+        <div className="absolute top-0 right-0 w-24 h-24 bg-slate-900 rotate-45 translate-x-12 -translate-y-12"></div>
 
-        {/* Header */}
-        <div className="flex justify-between items-start border-b-[6px] border-slate-900 pb-8 mb-10">
+        {/* Header Section */}
+        <div className="flex justify-between items-start border-b-[4px] border-slate-900 pb-4 mb-6">
           <div>
-            <h1 className="text-5xl font-black uppercase mb-2 tracking-tighter">FLOWER ORDER</h1>
-            <p className="text-xl font-bold bg-slate-900 text-white px-4 py-1 inline-block">ใบสั่งซื้อสินค้า / ใบเสร็จรับเงิน</p>
+            <h1 className="text-3xl font-black uppercase mb-1 tracking-tighter">FLOWER ORDER</h1>
+            <p className="text-sm font-bold bg-slate-900 text-white px-3 py-0.5 inline-block">ใบสั่งซื้อสินค้า / ใบเสร็จรับเงิน</p>
           </div>
           <div className="text-right">
-            <p className="font-black text-3xl">#{order.id.slice(-8).toUpperCase()}</p>
-            <p className="text-sm font-bold text-slate-400">ORDERED DATE: {order.timestamp || '-'}</p>
+            <p className="font-black text-xl">#{order.id.slice(-8).toUpperCase()}</p>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Date: {order.timestamp || '-'}</p>
           </div>
         </div>
 
-        {/* Main Info Grid */}
-        <div className="grid grid-cols-2 gap-16 mb-12">
-          <div className="space-y-6">
-            <h2 className="text-2xl font-black border-b-4 border-slate-900 pb-2 uppercase">Recipient Info</h2>
-            <div>
-              <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Customer Name</p>
-              <p className="text-2xl font-black">{order.recipientName}</p>
-            </div>
-            <div>
-              <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Contact Phone</p>
-              <p className="text-2xl font-black">{order.phone}</p>
-            </div>
-            <div>
-              <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Delivery Address</p>
-              <p className="text-lg font-bold leading-tight">{order.address}</p>
+        {/* Info Grid: Recipient & Schedule */}
+        <div className="grid grid-cols-2 gap-8 mb-6">
+          <div className="space-y-4">
+            <h2 className="text-lg font-black border-b-2 border-slate-900 pb-1 uppercase tracking-wider">Recipient Info</h2>
+            <div className="grid grid-cols-1 gap-3">
+              <div>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Customer Name</p>
+                <p className="text-xl font-black leading-none">{order.recipientName}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Contact Phone</p>
+                <p className="text-xl font-black leading-none">{order.phone}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Address</p>
+                <p className="text-sm font-bold leading-tight line-clamp-2">{order.address}</p>
+              </div>
             </div>
           </div>
-          <div className="space-y-6">
-            <h2 className="text-2xl font-black border-b-4 border-slate-900 pb-2 uppercase">Schedule</h2>
+          
+          <div className="space-y-4">
+            <h2 className="text-lg font-black border-b-2 border-slate-900 pb-1 uppercase tracking-wider">Schedule & Sample</h2>
             <div>
-              <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Delivery Date/Time</p>
-              <p className="text-2xl font-black">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Delivery Schedule</p>
+              <p className="text-lg font-black">
                 {new Date(order.deliveryTime).toLocaleString('th-TH', { 
                   year: 'numeric', 
-                  month: 'long', 
+                  month: 'short', 
                   day: 'numeric', 
                   hour: '2-digit', 
                   minute: '2-digit' 
@@ -69,60 +72,63 @@ const PrintTemplate: React.FC<Props> = ({ order }) => {
               </p>
             </div>
             
-            {/* Added Image Section in Single Print */}
-            <div className="pt-4">
-              <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Product Sample</p>
-              <div className="w-full aspect-video border-2 border-slate-900 rounded-xl overflow-hidden bg-slate-50">
+            {/* Optimized Image Area */}
+            <div className="flex gap-4 items-end">
+              <div className="w-28 h-28 border-2 border-slate-900 rounded-lg overflow-hidden bg-slate-50 flex-shrink-0">
                 {order.photoUrl ? (
-                  <img src={getDirectImageUrl(order.photoUrl)} className="w-full h-full object-cover" alt="Flower Sample" />
+                  <img src={getDirectImageUrl(order.photoUrl)} className="w-full h-full object-cover" alt="Sample" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-slate-200 font-black">NO PHOTO</div>
+                  <div className="w-full h-full flex items-center justify-center text-[10px] font-black text-slate-200">NO PHOTO</div>
                 )}
               </div>
+              <p className="text-[9px] font-black text-slate-300 uppercase italic">Product Sample Image Reference</p>
             </div>
           </div>
         </div>
 
-        {/* Order Details Table */}
-        <div className="mb-12">
+        {/* Description Table */}
+        <div className="mb-6">
           <table className="w-full border-collapse">
             <thead>
               <tr className="bg-slate-900 text-white">
-                <th className="border-2 border-slate-900 p-4 text-left font-black text-lg uppercase">Description / รายละเอียดสินค้า</th>
-                <th className="border-2 border-slate-900 p-4 text-center font-black w-40 text-lg uppercase">Qty</th>
+                <th className="border-2 border-slate-900 p-2 text-left font-black text-sm uppercase tracking-widest">Description / รายละเอียด</th>
+                <th className="border-2 border-slate-900 p-2 text-center font-black w-24 text-sm uppercase tracking-widest">Qty</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td className="border-2 border-slate-900 p-6 font-bold align-top">
-                  <p className="text-2xl mb-6">{order.details}</p>
+                <td className="border-2 border-slate-900 p-4 font-bold align-top min-h-[100px]">
+                  <p className="text-lg mb-4">{order.details}</p>
                   {order.cardMessage && (
-                    <div className="mt-6 p-8 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-300 relative">
-                      <div className="absolute top-0 left-6 -translate-y-1/2 bg-white px-4 font-black text-xs text-slate-400 tracking-widest uppercase">Card Message</div>
-                      <p className="italic font-serif text-2xl text-slate-800">"{order.cardMessage}"</p>
+                    <div className="p-4 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200 relative mt-2">
+                      <div className="absolute top-0 left-4 -translate-y-1/2 bg-white px-2 font-black text-[9px] text-slate-400 tracking-widest uppercase">Card Message</div>
+                      <p className="italic font-serif text-lg text-slate-700 leading-relaxed">"{order.cardMessage}"</p>
                     </div>
                   )}
                 </td>
-                <td className="border-2 border-slate-900 p-6 text-center font-black text-3xl">1 Set</td>
+                <td className="border-2 border-slate-900 p-4 text-center font-black text-xl align-top">1 Set</td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        {/* Footer Signatures */}
-        <div className="grid grid-cols-2 gap-24 mt-24 pt-10">
+        {/* Signatures Section */}
+        <div className="grid grid-cols-2 gap-16 mt-12 pt-4">
           <div className="text-center">
-            <div className="border-b-2 border-slate-900 h-12 mb-3"></div>
-            <p className="font-black uppercase text-sm">Prepared & Delivered by</p>
+            <div className="border-b-2 border-slate-900 h-10 mb-2"></div>
+            <p className="font-black uppercase text-[10px] tracking-widest">Authorized Signature</p>
+            <p className="text-[9px] text-slate-400 font-bold">(ผู้จัดทำและจัดส่ง)</p>
           </div>
           <div className="text-center">
-            <div className="border-b-2 border-slate-900 h-12 mb-3"></div>
-            <p className="font-black uppercase text-sm">Customer Signature</p>
+            <div className="border-b-2 border-slate-900 h-10 mb-2"></div>
+            <p className="font-black uppercase text-[10px] tracking-widest">Customer Signature</p>
+            <p className="text-[9px] text-slate-400 font-bold">(ผู้รับสินค้า)</p>
           </div>
         </div>
 
-        <div className="mt-16 text-center text-[10px] font-black text-slate-300 uppercase tracking-[0.4em]">
-          Professional Flower Ordering System Management
+        {/* Bottom Tagline */}
+        <div className="mt-8 text-center text-[8px] font-black text-slate-300 uppercase tracking-[0.5em]">
+          FLOWER ORDERING MANAGEMENT PROFESSIONAL SYSTEM
         </div>
       </div>
     </div>
