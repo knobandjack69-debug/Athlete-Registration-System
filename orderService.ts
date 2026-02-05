@@ -1,5 +1,5 @@
 
-import { Order, OrderFormData } from './types';
+import { Order, OrderFormData } from './types.ts';
 
 /**
  * ลิงก์ Web App จาก Google Apps Script (อัปเดตล่าสุด)

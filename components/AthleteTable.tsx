@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Trash2, Edit2, User, ImageIcon } from 'lucide-react';
-import { Athlete } from '../types';
+import { Athlete } from '../types.ts';
 
 interface Props {
   athletes: Athlete[];

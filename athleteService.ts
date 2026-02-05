@@ -1,5 +1,5 @@
 
-import { Athlete, AthleteFormData } from './types';
+import { Athlete, AthleteFormData } from './types.ts';
 
 /**
  * ลิงก์ Web App จาก Google Apps Script

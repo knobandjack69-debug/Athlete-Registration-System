@@ -1,6 +1,7 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Camera, Loader2, X, RefreshCw, UserPlus } from 'lucide-react';
-import { AthleteFormData, Athlete } from '../types';
+import { AthleteFormData, Athlete } from '../types.ts';
 
 interface Props {
   onSubmit: (data: AthleteFormData) => Promise<void>;
@@ -92,7 +93,6 @@ const RegistrationForm: React.FC<Props> = ({ onSubmit, isSubmitting, editData, o
               </div>
             )}
             
-            {/* Hover state for circular preview */}
             {preview && (
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-full">
                 <Camera className="text-white w-8 h-8" />
